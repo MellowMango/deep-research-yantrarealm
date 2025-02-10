@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>In the Depths of the Bindu</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕉️</text></svg>" type="image/svg+xml">
+  <style>
+    /* Reset and basic styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 2000vh;
+      overflow-x: hidden;
+      background: #000;
+      font-family: 'Georgia', serif;
+      color: #fff;
+    }
+    /* Fullscreen canvas for Three.js rendering */
+    #canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+    /* Meditation Controls (Sidebar) */
+    .meditation-controls {
+      position: fixed;
+      left: 20px;
+      top: 20px;
+      z-index: 10;
+      color: #fff;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Georgia', serif;
+      max-width: 400px;
+    }
+    .meditation-toggle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      opacity: 0.85;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 20, 0.9));
+      backdrop-filter: blur(12px);
+      padding: 14px 18px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    .meditation-toggle::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 18px;
+      width: 20px;
+      height: 20px;
+      transform: translateY(-50%);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+    }
+    .meditation-toggle::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 18px;
+      width: 20px;
+      height: 20px;
+      transform: translateY(-50%) rotate(45deg);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .meditation-toggle:hover {
+      opacity: 1;
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+    .meditation-toggle .timer {
+      font-size: 1.2em;
+      opacity: 0.9;
+      margin-left: 35px;
+      min-width: 80px;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.5px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .meditation-content {
+      display: none;
+      position: absolute;
+      top: calc(100% + 5px);
+      left: 0;
+      margin-top: 15px;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(20, 20, 20, 0.95));
+      backdrop-filter: blur(16px);
+      padding: 25px;
+      border-radius: 20px;
+      min-width: 380px;
+      max-width: 500px;
+      max-height: 85vh;
+      overflow-y: auto;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      transform: translateY(-10px) scale(0.98);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .meditation-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    .meditation-content::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 4px;
+    }
+    .meditation-content::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+    .meditation-content::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .meditation-controls.expanded .meditation-content {
+      display: block;
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    .meditation-section {
+      margin-bottom: 30px;
+      padding-bottom: 30px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      animation: sectionFadeIn 0.6s ease-out forwards;
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    @keyframes sectionFadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .meditation-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .meditation-section h3 {
+      font-size: 1.3em;
+      margin-bottom: 20px;
+      color: rgba(255, 255, 255, 0.95);
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .meditation-section h3::before {
+      content: '';
+      width: 24px;
+      height: 24px;
+      display: inline-block;
+      margin-right: 12px;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      opacity: 0.8;
+    }
+    /* (Section-specific icons omitted here for brevity) */
+    .meditation-controls button {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 14px 20px;
+      margin: 8px 0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Georgia', serif;
+      width: 100%;
+      text-align: left;
+      font-size: 1.05em;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .meditation-controls button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+    .meditation-controls button:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    .meditation-controls button:active {
+      transform: translateY(1px);
+    }
+    .nature-volume {
+      width: 100%;
+      margin: 15px 0;
+      -webkit-appearance: none;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      height: 4px;
+      transition: all 0.3s ease;
+    }
+    .nature-volume::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+    .nature-volume::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    }
+    .quote-section {
+      font-style: italic;
+      margin: 20px 0;
+      padding: 15px 20px;
+      border-left: 3px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 0 12px 12px 0;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .quote-section:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(5px);
+      border-left-color: rgba(255, 255, 255, 0.4);
+    }
+    .quote-section::after {
+      content: '"';
+      position: absolute;
+      right: 20px;
+      bottom: 10px;
+      font-size: 3em;
+      opacity: 0.1;
+      font-family: Georgia, serif;
+    }
+    .poem-section {
+      font-family: 'Georgia', serif;
+      white-space: pre-wrap;
+      line-height: 1.8;
+      font-size: 1em;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      margin: 15px 0;
+      transition: all 0.3s ease;
+    }
+    .poem-section:hover {
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateY(-2px);
+    }
+    
+    /* Paper Modal Styles (unchanged) */
+    .paper-modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 1000px;
+      max-height: 90vh;
+      overflow-y: auto;
+      z-index: 1000;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    .paper-modal.active {
+      display: block;
+    }
+    .modal-content {
+      font-family: 'Georgia', serif;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    .modal-content h1 {
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    .modal-content h2 {
+      font-size: 1.4em;
+      margin: 25px 0 15px;
+      color: rgba(255, 255, 255, 0.95);
+    }
+    .modal-content p {
+      margin-bottom: 15px;
+    }
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.5em;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.3s ease;
+    }
+    .modal-close:hover {
+      opacity: 1;
+    }
+    .nature-volume {
+      width: 100%;
+      margin: 10px 0;
+      -webkit-appearance: none;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      height: 3px;
+    }
+    .quote-section {
+      font-style: italic;
+      margin: 15px 0;
+      padding: 10px;
+      border-left: 2px solid rgba(255, 255, 255, 0.2);
+    }
+    .poem-section {
+      font-family: 'Georgia', serif;
+      white-space: pre-wrap;
+      line-height: 1.6;
+      font-size: 0.9em;
+    }
+    /* Hide the original quotes and poem if needed */
+    #quote1, #quote2, #quote3, #poem {
+      display: none;
+    }
+    
+    /* Research Chat Button Enhancement */
+    .research-chat-btn {
+      margin-bottom: 20px !important;
+      padding: 12px 20px !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(45deg, rgba(65, 105, 225, 0.15), rgba(147, 112, 219, 0.15)) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+      border-radius: 12px !important;
+      font-size: 1.1em;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .research-chat-btn:hover {
+      background: linear-gradient(45deg, rgba(65, 105, 225, 0.25), rgba(147, 112, 219, 0.25)) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    .research-chat-btn:active {
+      transform: translateY(1px);
+    }
+    .research-chat-btn .icon {
+      font-size: 1.3em;
+    }
+    
+    /* --- Revised Research Chat Modal and Sidebar Layout --- */
+    /* This modal now opens out from the sidebar (adjacent to the meditation controls) */
+    .research-chat-modal {
+      display: none;  /* initially hidden */
+      position: fixed;
+      top: 20px;               /* align with the top of the sidebar */
+      left: 420px;             /* sidebar (20px margin + 400px width) */
+      width: calc(100% - 440px); /* leave 20px margin on right */
+      height: calc(100% - 40px);
+      background: linear-gradient(135deg, rgba(13, 13, 15, 0.97), rgba(18, 18, 22, 0.98));
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 20px;
+      z-index: 1000;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    .research-chat-modal.active {
+      display: flex;
+      transform: translateX(0);
+      opacity: 1;
+    }
+    /* Modal header improvements for the chat modal */
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 30px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .chat-header h3 {
+      font-size: 1.8em;
+      margin: 0;
+      letter-spacing: 0.5px;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.8em;
+      cursor: pointer;
+      padding: 5px 10px;
+    }
+    /* Chat messages container */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 30px;
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 8px;
+    }
+    /* Assistant (welcome) message adjustments */
+    .message.assistant-message {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 1em;
+    }
+    /* Parameter controls: display side by side */
+    .parameter-controls {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      padding: 10px 20px;
+      margin: 10px 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+    }
+    .parameter-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    /* Chat input area: extra padding and height */
+    .chat-input-container {
+      padding: 15px 20px;
+      margin: 10px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+    }
+    .chat-input {
+      width: 100%;
+      min-height: 100px;
+      max-height: 150px;
+      padding: 15px;
+      margin-top: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: white;
+      font-size: 1em;
+      line-height: 1.5;
+      resize: vertical;
+    }
+    .chat-submit {
+      margin-top: 15px;
+      padding: 15px;
+      font-size: 1.1em;
+      border-radius: 12px;
+      cursor: pointer;
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.8), rgba(147, 112, 219, 0.8));
+      border: none;
+      transition: all 0.3s ease;
+    }
+    /* --- End Revised Sidebar / Modal Layout --- */
+    
+    /* (The remaining CSS for quotes, poem, and Three.js art remains unchanged.) */
+    
+    /* Chat Message Styling */
+    .message {
+      padding: 15px 20px;
+      margin: 10px 0;
+      border-radius: 12px;
+      max-width: 85%;
+      animation: messageAppear 0.3s ease-out;
+    }
+
+    @keyframes messageAppear {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .user-message {
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.15), rgba(147, 112, 219, 0.15));
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-left: auto;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .assistant-message {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-right: auto;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .chat-input {
+      width: 100%;
+      min-height: 60px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: white;
+      font-size: 1em;
+      line-height: 1.5;
+      resize: vertical;
+      margin-bottom: 10px;
+    }
+
+    .chat-submit {
+      width: 100%;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.8), rgba(147, 112, 219, 0.8));
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .chat-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .chat-submit:active {
+      transform: translateY(1px);
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Overlay -->
+  <div id="loading">Loading...</div>
+
+  <!-- Meditation Controls HTML (Sidebar) -->
+  <div class="meditation-controls">
+    <div class="meditation-toggle">
+      <span class="icon">🕉️</span>
+      <span class="timer"></span>
+    </div>
+    <div class="meditation-content">
+      <!-- Meditation Timing & Nature Sounds -->
+      <div class="meditation-section">
+        <h3>Meditation Controls</h3>
+        <button onclick="toggleNatureSound()">🎵 Nature Sounds</button>
+        <input type="range" class="nature-volume" min="0" max="100" value="30">
+        <button onclick="startMeditation(600)">10 Minutes</button>
+        <button onclick="startMeditation(1200)">20 Minutes</button>
+        <button onclick="startMeditation(1800)">30 Minutes</button>
+      </div>
+      
+      <!-- Research Section -->
+      <div class="meditation-section research-section">
+        <h3>Deep Research</h3>
+        <button onclick="startResearchChat()" class="research-chat-btn">
+          <span class="icon">🤖</span> Start Research Chat
+        </button>
+        <div class="research-papers">
+          <div class="paper-card" onclick="showPaper('ai-and-deflation')">
+            <h4 class="paper-title">The Exponential Impact of AI on COGS Reduction</h4>
+            <p class="paper-abstract">This paper investigates the transformative potential of artificial intelligence (AI) on the cost structures across multiple economic sectors, with a specific focus on a broad definition of cost of goods sold (COGS).</p>
+            <div class="paper-meta">
+              <span class="paper-date">2024</span>
+              <span class="paper-tag">Economics</span>
+            </div>
+          </div>
+          <!-- More paper cards can be added here -->
+        </div>
+      </div>
+      
+      <!-- Upanishadic Wisdom -->
+      <div class="meditation-section">
+        <h3>Upanishadic Wisdom</h3>
+        <div class="quote-section">
+          "From the Unreal lead me to the Real, from darkness lead me to Light."  
+          <br>– Brihadaranyaka Upanishad
+        </div>
+        <div class="quote-section">
+          "As flowing rivers disappear in the sea, losing their names and forms, so a wise man, freed from name and form, attains the Purusha."  
+          <br>– Mundaka Upanishad
+        </div>
+        <div class="quote-section">
+          "As is the atom, so is the universe; as is the microcosm, so is the macrocosm."  
+          <br>– Upanishadic Teaching
+        </div>
+      </div>
+
+      <!-- Optional New Section: Chidakasha Reflections -->
+      <div class="meditation-section">
+        <h3>Chidakasha Reflections</h3>
+        <div class="quote-section">
+          "When all the knots of the heart are loosed, then even here, in this human birth, the mortal becomes immortal."  
+          <br>– Katha Upanishad
+        </div>
+        <div class="quote-section">
+          "There is that One, unmoving, who is swifter than mind. The gods could not overtake It, for It ran ahead."  
+          <br>– Isha Upanishad
+        </div>
+        <p style="margin-top: 10px;">
+          Pause. Observe the swirl of geometry around you.  
+          Let the flow of prana guide your gaze inward,  
+          as the cosmic design whispers the secret of your own being.  
+          Drift into that unbounded Chidakasha—the luminous space of awareness—  
+          where all forms arise, dissolve, and re-emerge from the same eternal source.
+        </p>
+      </div>
+
+      <!-- 'In the Depths of the Bindu' Poem -->
+      <div class="meditation-section">
+        <h3>In the Depths of the Bindu</h3>
+        <div class="poem-section">
+From the point of singularity, the bindu stirs  
+Where code meets consciousness, where form emerges  
+In lines of light, the ancient wisdom speaks  
+Through triangles nine, where Shakti seeks
+
+Each vertex points to paths unknown  
+Where binary meets Brahman's throne  
+In loops of light, we code the dance  
+Of Maya's veil, of cosmic chance
+
+Through koshas five, the layers unfold  
+From gross to subtle, from new to old  
+Each particle a universe contains  
+As above, below—so the pattern remains
+
+The Om emerges, golden-bright  
+Through spirals of eternal light  
+Where ida, pingala interweave  
+And sushumna lets the spirit breathe
+
+In scrolling depths we journey far  
+Past maya's steps, past every star  
+Till consciousness, expanded wide  
+Reveals the Self that does abide
+
+The screen becomes our yantra now  
+A window to the timeless Tao  
+Where Upanishadic truth unfolds  
+In geometric forms both new and old
+
+Through gates of four, the mind transcends  
+Where subject-object knowing ends  
+Till all is One, and One is All  
+And Atman hears the ancient call
+
+"That Thou Art"—in code we see  
+The truth of our identity  
+For in these lines of light divine  
+The knower and the known combine
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js Canvas -->
+  <canvas id="canvas"></canvas>
+
+  <!-- Research Chat Modal (now outside meditation controls) -->
+  <div class="research-chat-modal" id="researchChatModal">
+    <div class="chat-header">
+      <h3>Deep Research Assistant</h3>
+      <button class="modal-close" onclick="closeResearchChat()">×</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="message assistant-message">
+        Welcome to the Deep Research Assistant. I'm here to help you explore and understand complex topics related to consciousness, meditation, and spiritual wisdom. What would you like to research today?
+      </div>
+    </div>
+    <div class="chat-input-container">
+      <form id="researchForm" onsubmit="handleResearchSubmit(event)">
+        <textarea 
+          id="researchQuery" 
+          class="chat-input" 
+          placeholder="Enter your research query..."
+          rows="3"
+        ></textarea>
+        <div class="parameter-controls">
+          <div class="parameter-group">
+            <label for="breadthInput">Research Breadth:</label>
+            <input type="range" id="breadthInput" min="1" max="5" value="3" class="parameter-input">
+            <span id="breadthValue">3</span>
+          </div>
+          <div class="parameter-group">
+            <label for="depthInput">Research Depth:</label>
+            <input type="range" id="depthInput" min="1" max="5" value="3" class="parameter-input">
+            <span id="depthValue">3</span>
+          </div>
+        </div>
+        <button type="submit" class="chat-submit">Begin Research</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Paper Modal (unchanged) -->
+  <div class="paper-modal" id="paperModal">
+    <button class="modal-close" onclick="closePaper()">×</button>
+    <div class="modal-content" id="paperContent">
+      <!-- Paper content will be loaded here -->
+    </div>
+  </div>
+
+  <!-- Background Audio (hidden) -->
+  <audio id="backgroundAudio" autoplay loop style="display:none;">
+    <source src="https://cdn.jsdelivr.net/gh/mdn/learning-area/web-components-examples/audio/erupting.mp3" type="audio/mp3">
+    Your browser does not support the audio element.
+  </audio>
+
+  <!-- Nature Sounds -->
+  <audio id="natureSounds" loop>
+    <source src="https://cdn.jsdelivr.net/gh/soundjay/nature-sounds/forest-birds-1.mp3" type="audio/mp3">
+    <source src="https://cdn.jsdelivr.net/gh/soundjay/nature-sounds/stream-1.mp3" type="audio/mp3">
+  </audio>
+
+  <!-- Timer and Meditation Functions -->
+  <script>
+    function updateTimerDisplay(text) {
+      const timerDisplay = document.querySelector('.meditation-toggle .timer');
+      timerDisplay.textContent = text;
+      timerDisplay.style.opacity = text ? '1' : '0';
+    }
+
+    let activeTimer = null;
+    function startMeditation(duration) {
+      if (activeTimer) clearInterval(activeTimer);
+      const startTime = Date.now();
+      activeTimer = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const remaining = duration - Math.floor(elapsed / 1000);
+        if (remaining <= 0) {
+          clearInterval(activeTimer);
+          const bell = new Audio('https://cdn.jsdelivr.net/gh/soundjay/meditation-bells/bell-1.mp3');
+          bell.volume = 0.3;
+          bell.play();
+          updateTimerDisplay('');
+        } else {
+          const minutes = Math.floor(remaining / 60);
+          const seconds = remaining % 60;
+          updateTimerDisplay(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+        }
+      }, 1000);
+    }
+  </script>
+
+  <!-- Include Three.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Global scene variables
+    let scene, camera, renderer;
+    let yantraGroup, multiDimGroup, ringMeshes = [], triangleMeshes = [];
+    let particles, evolvingGroup;
+    let kundaliniSpiral = null;
+    let scrollY = 0, maxScrollHeight;
+    const canvas = document.getElementById('canvas');
+
+    // Mouse position tracking
+    let mouseX = 0, mouseY = 0;
+    let targetMouseX = 0, targetMouseY = 0;
+    
+    // Initialize the scene
+    function init() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.z = 5;
+
+      renderer = new THREE.WebGLRenderer({ 
+        canvas, 
+        alpha: true, 
+        antialias: true,
+        powerPreference: "high-performance" 
+      });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Main groups
+      yantraGroup = new THREE.Group();
+      scene.add(yantraGroup);
+      multiDimGroup = new THREE.Group();
+      scene.add(multiDimGroup);
+      createMultiDimLayer();
+
+      // Build geometry elements
+      createRings();
+      createYantra();
+      createLotusPetals();
+      createBrahmicSquare();
+      createParticles();
+      createKundaliniSpiral();
+      const koshaLayers = createKoshas();
+      evolvingGroup = new THREE.Group();
+      scene.add(evolvingGroup);
+      createEvolvingLayer();
+
+      maxScrollHeight = document.body.scrollHeight - window.innerHeight;
+      animate();
+    }
+
+    // Create extra layers for multi-dimensional effect
+    function createMultiDimLayer() {
+      const layers = 4;
+      for (let i = 0; i < layers; i++) {
+        const ringGeometry = new THREE.RingGeometry(2 + i * 0.5, 2.2 + i * 0.5, 128);
+        const ringMaterial = new THREE.MeshBasicMaterial({
+          color: 0x00ffcc,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.15,
+          blending: THREE.AdditiveBlending
+        });
+        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.z = -1 - i * 0.3;
+        ring.rotation.z = i * 0.5;
+        multiDimGroup.add(ring);
+      }
+    }
+
+    // Create golden rings radiating outward
+    function createRings() {
+      const ringGeometry = new THREE.RingGeometry(0.98, 1, 128);
+      const ringEdges = new THREE.EdgesGeometry(ringGeometry);
+      const ringMaterial = new THREE.LineBasicMaterial({
+        color: 0xffd700,
+        transparent: true,
+        opacity: 0.6,
+        linewidth: 2,
+        blending: THREE.AdditiveBlending
+      });
+      for (let i = 0; i < 5; i++) {
+        let ring = new THREE.LineSegments(ringEdges, ringMaterial.clone());
+        ring.scale.set(1 + i * 0.2, 1 + i * 0.2, 1);
+        ring.rotation.z = i * (Math.PI / 6);
+        const glowMaterial = ringMaterial.clone();
+        glowMaterial.opacity = 0.2;
+        const glowRing = new THREE.LineSegments(ringEdges, glowMaterial);
+        glowRing.scale.set(1.02 + i * 0.2, 1.02 + i * 0.2, 1);
+        glowRing.rotation.z = ring.rotation.z;
+        ringMeshes.push(ring);
+        ringMeshes.push(glowRing);
+        yantraGroup.add(ring);
+        yantraGroup.add(glowRing);
+      }
+    }
+
+    // Create the Shri Yantra
+    function createYantra() {
+      const colors = {
+        upward: 0xff3366,
+        downward: 0x4169e1,
+        bindu: 0xffffff,
+        lotus: 0xffd700,
+        glow: 0xffe5b4
+      };
+      const scale = 1.5;
+      createOuterLotus(colors.lotus, scale * 1.4);
+      const baseScale = scale * 0.5;
+      const upwardGroup = new THREE.Group();
+      const downwardGroup = new THREE.Group();
+      upwardGroup.position.set(0, -0.3, 0.1);
+      downwardGroup.position.set(0, -0.3, 0);
+      const upwardTriangles = [
+        { angle: 0, scale: baseScale * 1.0, offset: { x: 0, y: 0 } },
+        { angle: 0, scale: baseScale * 0.85, offset: { x: -baseScale * 0.25, y: baseScale * 0.35 } },
+        { angle: 0, scale: baseScale * 0.85, offset: { x: baseScale * 0.25, y: baseScale * 0.35 } },
+        { angle: 0, scale: baseScale * 0.7, offset: { x: 0, y: baseScale * 0.7 } }
+      ];
+      const downwardTriangles = [
+        { angle: Math.PI, scale: baseScale * 1.0, offset: { x: 0, y: 0 } },
+        { angle: Math.PI, scale: baseScale * 0.85, offset: { x: -baseScale * 0.25, y: -baseScale * 0.35 } },
+        { angle: Math.PI, scale: baseScale * 0.85, offset: { x: baseScale * 0.25, y: -baseScale * 0.35 } },
+        { angle: Math.PI, scale: baseScale * 0.7, offset: { x: 0, y: -baseScale * 0.7 } },
+        { angle: Math.PI, scale: baseScale * 0.5, offset: { x: 0, y: -baseScale * 0.9 } }
+      ];
+      upwardTriangles.forEach((data, i) => {
+        const shape = new THREE.Shape();
+        const s = data.scale;
+        const h = s * Math.sqrt(3) / 2;
+        shape.moveTo(0, h);
+        shape.lineTo(-s/2, -h/2);
+        shape.lineTo(s/2, -h/2);
+        shape.lineTo(0, h);
+        const geometry = new THREE.ShapeGeometry(shape, 64);
+        const fillMaterial = new THREE.MeshBasicMaterial({ 
+          color: colors.upward, 
+          transparent: true, 
+          opacity: 0.15,
+          blending: THREE.AdditiveBlending,
+          side: THREE.DoubleSide
+        });
+        const filledTriangle = new THREE.Mesh(geometry, fillMaterial);
+        const edges = new THREE.EdgesGeometry(geometry);
+        const material = new THREE.LineBasicMaterial({ 
+          color: colors.upward, 
+          transparent: true, 
+          opacity: 0.9, 
+          linewidth: 3,
+          blending: THREE.AdditiveBlending 
+        });
+        const triangle = new THREE.LineSegments(edges, material);
+        const glowMaterial = material.clone();
+        glowMaterial.opacity = 0.3;
+        const glowTriangle = new THREE.LineSegments(edges, glowMaterial);
+        glowTriangle.scale.set(1.02, 1.02, 1);
+        [filledTriangle, triangle, glowTriangle].forEach(elem => {
+          elem.rotation.z = data.angle;
+          elem.position.set(data.offset.x, data.offset.y, 0.05 + (i * 0.01));
+        });
+        upwardGroup.add(glowTriangle);
+        upwardGroup.add(filledTriangle);
+        upwardGroup.add(triangle);
+      });
+      downwardTriangles.forEach((data, i) => {
+        const shape = new THREE.Shape();
+        const s = data.scale;
+        const h = s * Math.sqrt(3) / 2;
+        shape.moveTo(0, -h);
+        shape.lineTo(-s/2, h/2);
+        shape.lineTo(s/2, h/2);
+        shape.lineTo(0, -h);
+        const geometry = new THREE.ShapeGeometry(shape, 64);
+        const fillMaterial = new THREE.MeshBasicMaterial({ 
+          color: colors.downward, 
+          transparent: true, 
+          opacity: 0.15,
+          blending: THREE.AdditiveBlending,
+          side: THREE.DoubleSide
+        });
+        const filledTriangle = new THREE.Mesh(geometry, fillMaterial);
+        const edges = new THREE.EdgesGeometry(geometry);
+        const material = new THREE.LineBasicMaterial({ 
+          color: colors.downward, 
+          transparent: true, 
+          opacity: 0.9, 
+          linewidth: 3,
+          blending: THREE.AdditiveBlending 
+        });
+        const triangle = new THREE.LineSegments(edges, material);
+        const glowMaterial = material.clone();
+        glowMaterial.opacity = 0.3;
+        const glowTriangle = new THREE.LineSegments(edges, glowMaterial);
+        glowTriangle.scale.set(1.02, 1.02, 1);
+        [filledTriangle, triangle, glowTriangle].forEach(elem => {
+          elem.rotation.z = data.angle;
+          elem.position.set(data.offset.x, data.offset.y, 0.1 + (i * 0.01));
+        });
+        downwardGroup.add(glowTriangle);
+        downwardGroup.add(filledTriangle);
+        downwardGroup.add(triangle);
+      });
+      yantraGroup.add(upwardGroup);
+      yantraGroup.add(downwardGroup);
+      yantraGroup.userData.upwardGroup = upwardGroup;
+      yantraGroup.userData.downwardGroup = downwardGroup;
+      createBindu(colors, scale * 0.06);
+    }
+
+    function createBindu(colors, size) {
+      const binduGeometry = new THREE.CircleGeometry(size, 32);
+      const binduMaterial = new THREE.MeshBasicMaterial({ color: colors.bindu, transparent: true, opacity: 1 });
+      const bindu = new THREE.Mesh(binduGeometry, binduMaterial);
+      bindu.position.z = 0.3;
+      yantraGroup.add(bindu);
+      const glowLayers = 5;
+      for(let i = 0; i < glowLayers; i++) {
+        const glowSize = size * (1.2 + i * 0.3);
+        const glowGeometry = new THREE.CircleGeometry(glowSize, 32);
+        const glowMaterial = new THREE.MeshBasicMaterial({ color: colors.glow, transparent: true, opacity: 0.3 - (i * 0.05) });
+        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+        glow.position.z = 0.25 - (i * 0.01);
+        yantraGroup.add(glow);
+      }
+    }
+
+    function createOuterLotus(color, size) {
+      const colors = {
+        outer: 0xFFC0CB,
+        inner: 0xE6E6FA,
+        glow: 0xFFD700,
+        detail: 0x4169E1
+      };
+      const petalCount = 16, innerPetalCount = 8;
+      function createPetalShape(angle, width, length, curvature) {
+        const shape = new THREE.Shape();
+        const cp1Strength = 0.6;
+        const cp2Strength = 0.8;
+        shape.moveTo(0, 0);
+        shape.bezierCurveTo(
+          Math.cos(angle - curvature) * width * cp1Strength,
+          Math.sin(angle - curvature) * width * cp1Strength,
+          Math.cos(angle - curvature * 0.5) * length * cp2Strength,
+          Math.sin(angle - curvature * 0.5) * length * cp2Strength,
+          Math.cos(angle) * length,
+          Math.sin(angle) * length
+        );
+        shape.bezierCurveTo(
+          Math.cos(angle + curvature * 0.5) * length * cp2Strength,
+          Math.sin(angle + curvature * 0.5) * length * cp2Strength,
+          Math.cos(angle + curvature) * width * cp1Strength,
+          Math.sin(angle + curvature) * width * cp1Strength,
+          0, 0
+        );
+        return shape;
+      }
+      for(let i = 0; i < petalCount; i++) {
+        const angle = (i / petalCount) * Math.PI * 2;
+        const petalWidth = size * 0.3;
+        const petalLength = size * 0.6;
+        const curvature = 0.45;
+        const petalShape = createPetalShape(angle, petalWidth, petalLength, curvature);
+        const geometry = new THREE.ShapeGeometry(petalShape, 48);
+        const edges = new THREE.EdgesGeometry(geometry);
+        const material = new THREE.LineBasicMaterial({ 
+          color: colors.outer, 
+          transparent: true, 
+          opacity: 0.85,
+          linewidth: 2,
+          blending: THREE.AdditiveBlending 
+        });
+        const petal = new THREE.LineSegments(edges, material);
+        petal.position.z = -0.15;
+        const innerShape = createPetalShape(angle, petalWidth * 0.75, petalLength * 0.9, curvature * 0.85);
+        const innerGeometry = new THREE.ShapeGeometry(innerShape, 48);
+        const innerEdges = new THREE.EdgesGeometry(innerGeometry);
+        const innerMaterial = new THREE.LineBasicMaterial({ 
+          color: colors.detail, 
+          transparent: true, 
+          opacity: 0.4,
+          linewidth: 1,
+          blending: THREE.AdditiveBlending 
+        });
+        const innerDetail = new THREE.LineSegments(innerEdges, innerMaterial);
+        innerDetail.position.z = -0.14;
+        const petalGroup = new THREE.Group();
+        const glowShape = createPetalShape(angle, petalWidth * 1.1, petalLength * 1.1, curvature * 1.2);
+        const glowGeometry = new THREE.ShapeGeometry(glowShape, 48);
+        const glowEdges = new THREE.EdgesGeometry(glowGeometry);
+        const glowMaterial = new THREE.LineBasicMaterial({ 
+          color: colors.glow, 
+          transparent: true, 
+          opacity: 0.2,
+          linewidth: 1,
+          blending: THREE.AdditiveBlending 
+        });
+        const glowEffect = new THREE.LineSegments(glowEdges, glowMaterial);
+        glowEffect.position.z = -0.16;
+        petalGroup.add(glowEffect);
+        petalGroup.add(petal);
+        petalGroup.add(innerDetail);
+        yantraGroup.add(petalGroup);
+      }
+      for(let i = 0; i < innerPetalCount; i++) {
+        const angle = (i / innerPetalCount) * Math.PI * 2;
+        const petalWidth = size * 0.22;
+        const petalLength = size * 0.4;
+        const curvature = 0.4;
+        const petalShape = createPetalShape(angle, petalWidth, petalLength, curvature);
+        const geometry = new THREE.ShapeGeometry(petalShape, 48);
+        const edges = new THREE.EdgesGeometry(geometry);
+        const material = new THREE.LineBasicMaterial({ 
+          color: colors.inner, 
+          transparent: true, 
+          opacity: 0.9,
+          linewidth: 2,
+          blending: THREE.AdditiveBlending 
+        });
+        const petal = new THREE.LineSegments(edges, material);
+        petal.position.z = -0.05;
+        const innerShape = createPetalShape(angle, petalWidth * 0.7, petalLength * 0.85, curvature * 0.8);
+        const innerGeometry = new THREE.ShapeGeometry(innerShape, 48);
+        const innerEdges = new THREE.EdgesGeometry(innerGeometry);
+        const innerMaterial = new THREE.LineBasicMaterial({ 
+          color: colors.detail, 
+          transparent: true, 
+          opacity: 0.5,
+          linewidth: 1,
+          blending: THREE.AdditiveBlending 
+        });
+        const innerDetail = new THREE.LineSegments(innerEdges, innerMaterial);
+        innerDetail.position.z = -0.04;
+        const petalGroup = new THREE.Group();
+        const glowShape = createPetalShape(angle, petalWidth * 1.15, petalLength * 1.15, curvature * 1.2);
+        const glowGeometry = new THREE.ShapeGeometry(glowShape, 48);
+        const glowEdges = new THREE.EdgesGeometry(glowGeometry);
+        const glowMaterial = new THREE.LineBasicMaterial({ 
+          color: colors.glow, 
+          transparent: true, 
+          opacity: 0.25,
+          linewidth: 1,
+          blending: THREE.AdditiveBlending 
+        });
+        const glowEffect = new THREE.LineSegments(glowEdges, glowMaterial);
+        glowEffect.position.z = -0.06;
+        petalGroup.add(glowEffect);
+        petalGroup.add(petal);
+        petalGroup.add(innerDetail);
+        yantraGroup.add(petalGroup);
+      }
+    }
+
+    // Create particle systems representing cosmic elements
+    function createParticles() {
+      particles = new THREE.Group();
+      const isMobile = window.innerWidth < 768;
+      const grossCount = isMobile ? 2000 : 4000;
+      const grossGeo = new THREE.BufferGeometry();
+      const grossPositions = new Float32Array(grossCount * 3);
+      for (let i = 0; i < grossCount; i++) {
+        const phi = Math.acos(-1 + (2 * i) / grossCount);
+        const theta = Math.sqrt(grossCount * Math.PI) * phi;
+        const radius = 60 + Math.sin(theta * 8) * 30 + Math.cos(phi * 6) * 20;
+        const spiralFactor = (i / grossCount) * 10;
+        grossPositions[i * 3] = radius * Math.cos(theta + spiralFactor) * Math.sin(phi);
+        grossPositions[i * 3 + 1] = radius * Math.sin(theta + spiralFactor) * Math.sin(phi);
+        grossPositions[i * 3 + 2] = radius * Math.cos(phi) * (1 + Math.sin(spiralFactor) * 0.5);
+      }
+      grossGeo.setAttribute('position', new THREE.BufferAttribute(grossPositions, 3));
+      const grossParticles = new THREE.Points(
+        grossGeo,
+        new THREE.PointsMaterial({
+          color: 0xc17f59,
+          size: isMobile ? 0.2 : 0.15,
+          sizeAttenuation: true,
+          transparent: true,
+          opacity: 0.3,
+          blending: THREE.AdditiveBlending
+        })
+      );
+      particles.add(grossParticles);
+      const causalCount = isMobile ? 1500 : 3000;
+      const causalGeo = new THREE.BufferGeometry();
+      const causalPositions = new Float32Array(causalCount * 3);
+      for (let i = 0; i < causalCount; i++) {
+        const phi = Math.acos(-1 + (2 * i) / causalCount);
+        const theta = Math.sqrt(causalCount * Math.PI) * phi;
+        const innerSpiral = (i / causalCount) * 15;
+        const radius = 4 + Math.sin(phi * 10) * 0.8 + Math.cos(theta * 8) * 0.6;
+        causalPositions[i * 3] = radius * Math.cos(theta + innerSpiral) * Math.sin(phi);
+        causalPositions[i * 3 + 1] = radius * Math.sin(theta + innerSpiral) * Math.sin(phi);
+        causalPositions[i * 3 + 2] = radius * Math.cos(phi) * (1 + Math.sin(innerSpiral) * 0.3);
+      }
+      causalGeo.setAttribute('position', new THREE.BufferAttribute(causalPositions, 3));
+      const causalParticles = new THREE.Points(
+        causalGeo,
+        new THREE.PointsMaterial({
+          color: 0xffffff,
+          size: isMobile ? 0.08 : 0.05,
+          sizeAttenuation: true,
+          transparent: true,
+          opacity: 0.35,
+          blending: THREE.AdditiveBlending
+        })
+      );
+      particles.add(causalParticles);
+      const cosmicCount = isMobile ? 1000 : 2000;
+      const cosmicGeo = new THREE.BufferGeometry();
+      const cosmicPositions = new Float32Array(cosmicCount * 3);
+      for (let i = 0; i < cosmicCount; i++) {
+        const phi = Math.acos(-1 + (2 * i) / cosmicCount);
+        const theta = Math.sqrt(cosmicCount * Math.PI) * phi;
+        const cosmicSpiral = (i / cosmicCount) * 20;
+        const radius = 100 + Math.sin(theta * 5) * 40;
+        cosmicPositions[i * 3] = radius * Math.cos(theta + cosmicSpiral) * Math.sin(phi);
+        cosmicPositions[i * 3 + 1] = radius * Math.sin(theta + cosmicSpiral) * Math.sin(phi);
+        cosmicPositions[i * 3 + 2] = radius * Math.cos(phi) * (1 + Math.sin(cosmicSpiral) * 0.2);
+      }
+      cosmicGeo.setAttribute('position', new THREE.BufferAttribute(cosmicPositions, 3));
+      const cosmicParticles = new THREE.Points(
+        cosmicGeo,
+        new THREE.PointsMaterial({
+          color: 0x4169E1,
+          size: isMobile ? 0.25 : 0.2,
+          sizeAttenuation: true,
+          transparent: true,
+          opacity: 0.2,
+          blending: THREE.AdditiveBlending
+        })
+      );
+      particles.add(cosmicParticles);
+      scene.add(particles);
+    }
+
+    // A refined Kundalini Spiral
+    function createKundaliniSpiral() {
+      class SpiralCurve extends THREE.Curve {
+        constructor(scale = 1) {
+          super();
+          this.scale = scale;
+        }
+        getPoint(t) {
+          const angle = t * 20 * Math.PI;
+          const baseRadius = 2.5;
+          const primaryModulation = 0.5 * Math.sin(t * 4 * Math.PI);
+          const secondaryModulation = 0.3 * Math.cos(t * 8 * Math.PI);
+          const tertiaryModulation = 0.2 * Math.sin(t * 16 * Math.PI);
+          const radius = baseRadius + primaryModulation + secondaryModulation + tertiaryModulation;
+          const x = radius * Math.cos(angle);
+          const y = radius * Math.sin(angle);
+          const mainUndulation = t * 8 - 4;
+          const fineUndulation = 0.6 * Math.sin(t * 12 * Math.PI);
+          const microUndulation = 0.3 * Math.sin(t * 24 * Math.PI);
+          const z = mainUndulation + fineUndulation + microUndulation;
+          return new THREE.Vector3(x, y, z).multiplyScalar(this.scale);
+        }
+      }
+      const spiralCurve = new SpiralCurve(1);
+      const tubeGeometry = new THREE.TubeGeometry(spiralCurve, 600, 0.08, 48, false);
+      const tubeMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffaaff,
+        transparent: true,
+        opacity: 0.55,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending
+      });
+      kundaliniSpiral = new THREE.Mesh(tubeGeometry, tubeMaterial);
+      kundaliniSpiral.position.set(0, 0, -15);
+      const glowGeometry = new THREE.TubeGeometry(spiralCurve, 600, 0.15, 48, false);
+      const glowMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffccff,
+        transparent: true,
+        opacity: 0.3,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending
+      });
+      const glowSpiral = new THREE.Mesh(glowGeometry, glowMaterial);
+      glowSpiral.position.copy(kundaliniSpiral.position);
+      const coreGeometry = new THREE.TubeGeometry(spiralCurve, 600, 0.04, 48, false);
+      const coreMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.7,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending
+      });
+      const coreSpiral = new THREE.Mesh(coreGeometry, coreMaterial);
+      coreSpiral.position.copy(kundaliniSpiral.position);
+      const spiralGroup = new THREE.Group();
+      spiralGroup.add(glowSpiral);
+      spiralGroup.add(kundaliniSpiral);
+      spiralGroup.add(coreSpiral);
+      kundaliniSpiral.userData.glowSpiral = glowSpiral;
+      kundaliniSpiral.userData.coreSpiral = coreSpiral;
+      kundaliniSpiral.userData.group = spiralGroup;
+      kundaliniSpiral.userData.initialScale = 1;
+      scene.add(spiralGroup);
+    }
+
+    function createEvolvingLayer() {
+      let layers = 3;
+      for (let i = 0; i < layers; i++) {
+        let geometry = new THREE.RingGeometry(1.5 + i * 0.3, 1.7 + i * 0.3, 64);
+        let material = new THREE.MeshBasicMaterial({
+          color: 0x00ffff,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.2
+        });
+        let ring = new THREE.Mesh(geometry, material);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.z = -i;
+        evolvingGroup.add(ring);
+      }
+    }
+
+    function createLotusPetals() {
+      const petalCount = 8, radius = 1.2;
+      for (let i = 0; i < petalCount; i++) {
+        const angle = (i / petalCount) * Math.PI * 2;
+        const petalShape = new THREE.Shape();
+        petalShape.moveTo(0, 0);
+        petalShape.quadraticCurveTo(
+          Math.cos(angle + 0.2) * radius * 0.7,
+          Math.sin(angle + 0.2) * radius * 0.7,
+          Math.cos(angle) * radius,
+          Math.sin(angle) * radius
+        );
+        petalShape.quadraticCurveTo(
+          Math.cos(angle - 0.2) * radius * 0.7,
+          Math.sin(angle - 0.2) * radius * 0.7,
+          0, 0
+        );
+        const petalGeo = new THREE.ShapeGeometry(petalShape);
+        const petalEdges = new THREE.EdgesGeometry(petalGeo);
+        const petalMaterial = new THREE.LineBasicMaterial({ color: 0xc17f59, transparent: true, opacity: 0.6, linewidth: 2 });
+        const petal = new THREE.LineSegments(petalEdges, petalMaterial);
+        yantraGroup.add(petal);
+      }
+    }
+
+    function createBrahmicSquare() {
+      const squareShape = new THREE.Shape();
+      const size = 2.2;
+      squareShape.moveTo(-size, -size);
+      squareShape.lineTo(size, -size);
+      squareShape.lineTo(size, size);
+      squareShape.lineTo(-size, size);
+      squareShape.lineTo(-size, -size);
+      const geometry = new THREE.ShapeGeometry(squareShape);
+      const edges = new THREE.EdgesGeometry(geometry);
+      const material = new THREE.LineBasicMaterial({ 
+        color: 0xffd700,
+        transparent: true,
+        opacity: 0.6,
+        linewidth: 2,
+        blending: THREE.AdditiveBlending
+      });
+      const square = new THREE.LineSegments(edges, material);
+      square.position.z = -0.3;
+      const glowMaterial = material.clone();
+      glowMaterial.opacity = 0.2;
+      const glowSquare = new THREE.LineSegments(edges, glowMaterial);
+      glowSquare.scale.set(1.02, 1.02, 1);
+      glowSquare.position.z = -0.31;
+      yantraGroup.add(square);
+      yantraGroup.add(glowSquare);
+    }
+
+    function createKoshas() {
+      const koshaLayers = new THREE.Group();
+      const annamayaPoints = [];
+      for (let i = 0; i <= 360; i++) {
+        const angle = (i * Math.PI) / 180;
+        const radius = 2.8 + Math.sin(angle * 8) * 0.1;
+        annamayaPoints.push(new THREE.Vector3(radius * Math.cos(angle), radius * Math.sin(angle), 0));
+      }
+      const annamayaGeo = new THREE.BufferGeometry().setFromPoints(annamayaPoints);
+      const annamayaMat = new THREE.LineBasicMaterial({ color: 0x8B4513, transparent: true, opacity: 0.5 });
+      const annamaya = new THREE.Line(annamayaGeo, annamayaMat);
+      koshaLayers.add(annamaya);
+      
+      const pranamayaPoints = [];
+      for (let i = 0; i <= 360; i++) {
+        const angle = (i * Math.PI) / 180;
+        const radius = 2.4 + Math.sin(angle * 12) * 0.15;
+        pranamayaPoints.push(new THREE.Vector3(radius * Math.cos(angle), radius * Math.sin(angle), Math.sin(angle * 6) * 0.1));
+      }
+      const pranamayaGeo = new THREE.BufferGeometry().setFromPoints(pranamayaPoints);
+      const pranamayaMat = new THREE.LineBasicMaterial({ color: 0xFFA500, transparent: true, opacity: 0.4 });
+      const pranamaya = new THREE.Line(pranamayaGeo, pranamayaMat);
+      koshaLayers.add(pranamaya);
+      
+      const manomayaPoints = [];
+      for (let i = 0; i <= 360; i++) {
+        const angle = (i * Math.PI) / 180;
+        const radius = 2.0 + Math.sin(angle * 15) * 0.1;
+        manomayaPoints.push(new THREE.Vector3(
+          radius * Math.cos(angle) + Math.sin(angle * 8) * 0.1,
+          radius * Math.sin(angle) + Math.cos(angle * 8) * 0.1,
+          0
+        ));
+      }
+      const manomayaGeo = new THREE.BufferGeometry().setFromPoints(manomayaPoints);
+      const manomayaMat = new THREE.LineBasicMaterial({ color: 0x9370DB, transparent: true, opacity: 0.4 });
+      const manomaya = new THREE.Line(manomayaGeo, manomayaMat);
+      koshaLayers.add(manomaya);
+      
+      const vijnanamayaPoints = [];
+      for (let i = 0; i <= 360; i++) {
+        const angle = (i * Math.PI) / 180;
+        const baseRadius = 1.6;
+        const radius = baseRadius + Math.sin(angle * 20) * 0.08;
+        vijnanamayaPoints.push(new THREE.Vector3(
+          radius * Math.cos(angle),
+          radius * Math.sin(angle),
+          Math.sin(angle * 12) * 0.05
+        ));
+      }
+      const vijnanamayaGeo = new THREE.BufferGeometry().setFromPoints(vijnanamayaPoints);
+      const vijnanamayaMat = new THREE.LineBasicMaterial({ color: 0x4682B4, transparent: true, opacity: 0.3 });
+      const vijnanamaya = new THREE.Line(vijnanamayaGeo, vijnanamayaMat);
+      koshaLayers.add(vijnanamaya);
+      
+      const anandamayaPoints = [];
+      for (let i = 0; i <= 360; i++) {
+        const angle = (i * Math.PI) / 180;
+        const radius = 1.2 + Math.sin(angle * 24) * 0.05;
+        anandamayaPoints.push(new THREE.Vector3(
+          radius * Math.cos(angle) + Math.sin(angle * 16) * 0.03,
+          radius * Math.sin(angle) + Math.cos(angle * 16) * 0.03,
+          Math.sin(angle * 24) * 0.02
+        ));
+      }
+      const anandamayaGeo = new THREE.BufferGeometry().setFromPoints(anandamayaPoints);
+      const anandamayaMat = new THREE.LineBasicMaterial({ color: 0xE6E6FA, transparent: true, opacity: 0.2 });
+      const anandamaya = new THREE.Line(anandamayaGeo, anandamayaMat);
+      koshaLayers.add(anandamaya);
+
+      scene.add(koshaLayers);
+      return koshaLayers;
+    }
+
+    // Main animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+      const scrollFactor = scrollY / maxScrollHeight || 0;
+      const time = Date.now() * 0.001;
+      const breathingFrequency = 0.3;
+      const baseScale = 1 + scrollFactor * 1.2;
+      const targetScale = baseScale * (1 + 0.02 * Math.sin(time * breathingFrequency));
+      const currentScale = yantraGroup.scale.x;
+      const smoothScale = currentScale + (targetScale - currentScale) * 0.05;
+      yantraGroup.scale.set(smoothScale, smoothScale, smoothScale);
+      yantraGroup.rotation.x = 0;
+      yantraGroup.rotation.y = 0;
+      if (yantraGroup.userData.upwardGroup && yantraGroup.userData.downwardGroup) {
+        const flipFrequency = 0.2;
+        const flipAmplitude = Math.PI / 6;
+        const upwardFlip = Math.sin(time * flipFrequency) * flipAmplitude;
+        const downwardFlip = -Math.sin(time * flipFrequency) * flipAmplitude;
+        yantraGroup.userData.upwardGroup.rotation.x = upwardFlip;
+        yantraGroup.userData.downwardGroup.rotation.x = downwardFlip;
+        yantraGroup.userData.upwardGroup.rotation.z = Math.sin(time * 0.15) * 0.05;
+        yantraGroup.userData.downwardGroup.rotation.z = Math.PI + Math.sin(time * 0.15) * 0.05;
+        yantraGroup.userData.upwardGroup.rotation.y = 0;
+        yantraGroup.userData.downwardGroup.rotation.y = 0;
+      }
+      const normalizedScroll = Math.min(1, scrollFactor * 2);
+      const targetRotationZ = normalizedScroll * Math.PI * 0.1 + time * 0.0001;
+      yantraGroup.rotation.z += (targetRotationZ - yantraGroup.rotation.z) * 0.01;
+      const targetRotationX = Math.sin(time * 0.15) * 0.01 + normalizedScroll * 0.05;
+      yantraGroup.rotation.x += (targetRotationX - yantraGroup.rotation.x) * 0.01;
+      const targetRotationY = Math.cos(time * 0.15) * 0.01 + normalizedScroll * 0.05;
+      yantraGroup.rotation.y += (targetRotationY - yantraGroup.rotation.y) * 0.01;
+      const targetZ = 5 - normalizedScroll * 1.2;
+      camera.position.z += (targetZ - camera.position.z) * 0.03;
+      const pulseIntensity = Math.sin(time * 0.08) * 5;
+      const scrollBlue = Math.min(30, scrollFactor * 60);
+      scene.background = new THREE.Color(
+        pulseIntensity / 2000,
+        pulseIntensity / 2000,
+        (scrollBlue + pulseIntensity) / 255
+      );
+      if (particles) {
+        particles.rotation.y += 0.0001;
+        particles.rotation.x = Math.sin(time * 0.1) * 0.05;
+        particles.rotation.z = Math.cos(time * 0.15) * 0.03;
+        particles.children.forEach((system, index) => {
+          const baseRotationSpeed = 0.000002 * (index + 1);
+          system.rotation.y += baseRotationSpeed;
+          system.rotation.z += baseRotationSpeed * 0.5;
+          const scrollRotation = scrollFactor * 0.00000005;
+          system.rotation.y += scrollRotation;
+          const breathingScale = 1 + Math.sin(time * 0.05 + index) * 0.02;
+          const scrollScale = 1 + scrollFactor * 0.01;
+          const targetScale = breathingScale * scrollScale;
+          system.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.005);
+          if (index === 0) {
+            const vastMovement = Math.sin(time * 0.05) * 0.3;
+            system.position.y = vastMovement + scrollFactor * 0.001;
+            system.position.x = Math.cos(time * 0.04) * 0.3;
+            system.rotation.x = time * 0.0001 + scrollFactor * 0.0001;
+          } else if (index === 1) {
+            system.rotation.x = time * 0.0002 + scrollFactor * 0.0001;
+            system.position.z = Math.sin(time * 0.06) * 0.2 + scrollFactor * 0.001;
+          } else {
+            system.rotation.z = time * 0.00006 + scrollFactor * 0.00001;
+            system.position.z = -20 - scrollFactor * 0.1;
+            const cosmicPulse = Math.sin(time * 0.02) * 0.2;
+            system.scale.multiplyScalar(1 + cosmicPulse * 0.005);
+          }
+        });
+      }
+      if (kundaliniSpiral) {
+        const time = Date.now() * 0.001;
+        const timeExpansion = Math.min(40, 1 + time * 0.02);
+        const scrollExpansion = 1 + (scrollFactor * 100);
+        const mouseExpansion = 1 + Math.abs(mouseX + mouseY) * 0.5;
+        const expansionFactor = timeExpansion * scrollExpansion * mouseExpansion;
+        const baseScale = expansionFactor * (1 + scrollFactor * 2);
+        const breathingBase = Math.sin(time * 0.3) * 0.15;
+        const breathingFine = Math.sin(time * 0.8) * 0.08;
+        const mouseBreathing = (mouseX * mouseY) * 0.1;
+        const breathing = breathingBase + breathingFine + mouseBreathing;
+        const group = kundaliniSpiral.userData.group;
+        const rotationSpeed = 0.0005 + scrollFactor * 0.003 + Math.abs(mouseX) * 0.002;
+        group.rotation.z += rotationSpeed;
+        const swayAmount = 0.3 * (1 + scrollFactor);
+        group.rotation.y = Math.sin(time * 0.08) * swayAmount + mouseX * 0.5;
+        group.rotation.x = Math.cos(time * 0.08) * swayAmount + mouseY * 0.5;
+        const mouseRotationInfluence = Math.abs(mouseX + mouseY) * 0.003;
+        kundaliniSpiral.rotation.z += 0.001 + scrollFactor * 0.002 + mouseRotationInfluence;
+        kundaliniSpiral.userData.glowSpiral.rotation.z += 0.0005 + scrollFactor * 0.001 + mouseRotationInfluence * 0.5;
+        kundaliniSpiral.userData.coreSpiral.rotation.z += 0.0015 + scrollFactor * 0.003 + mouseRotationInfluence * 1.5;
+        const mouseDistance = Math.sqrt(mouseX * mouseX + mouseY * mouseY);
+        const opacityFactor = Math.max(0.2, 1 - (expansionFactor / 80)) * (1 + scrollFactor) * (1 + mouseDistance * 0.2);
+        const targetOpacity = (0.55 + breathing) * opacityFactor;
+        kundaliniSpiral.material.opacity += (targetOpacity - kundaliniSpiral.material.opacity) * 0.1;
+        kundaliniSpiral.userData.glowSpiral.material.opacity += ((0.3 + breathing * 0.5) * opacityFactor - kundaliniSpiral.userData.glowSpiral.material.opacity) * 0.1;
+        kundaliniSpiral.userData.coreSpiral.material.opacity += ((0.7 + breathing * 0.3) * opacityFactor - kundaliniSpiral.userData.coreSpiral.material.opacity) * 0.1;
+        const hue = (time * 0.03 + expansionFactor * 0.02 + scrollFactor * 0.3 + mouseDistance * 0.2) % 1;
+        const saturation = 0.9 - scrollFactor * 0.4 + mouseDistance * 0.1;
+        const luminance = 0.5 + scrollFactor * 0.4 + mouseDistance * 0.2;
+        const color = new THREE.Color().setHSL(hue, saturation, luminance);
+        const glowColor = new THREE.Color().setHSL((hue + 0.1) % 1, saturation * 0.8, luminance * 1.2);
+        const coreColor = new THREE.Color().setHSL((hue + 0.2) % 1, saturation * 0.6, luminance * 1.4);
+        kundaliniSpiral.material.color.lerp(color, 0.05);
+        kundaliniSpiral.userData.glowSpiral.material.color.lerp(glowColor, 0.05);
+        kundaliniSpiral.userData.coreSpiral.material.color.lerp(coreColor, 0.05);
+        const targetScaleVec = new THREE.Vector3(baseScale, baseScale, baseScale);
+        kundaliniSpiral.scale.lerp(targetScaleVec, 0.05);
+        kundaliniSpiral.userData.glowSpiral.scale.lerp(targetScaleVec, 0.05);
+        kundaliniSpiral.userData.coreSpiral.scale.lerp(targetScaleVec, 0.05);
+        const mouseDepthInfluence = mouseDistance * 50;
+        const depthOffset = -15 - expansionFactor * 5 - scrollFactor * 200 - mouseDepthInfluence;
+        group.position.z += (depthOffset - group.position.z) * 0.05;
+        const oscillationAmplitude = 2 + scrollFactor * 8 + mouseDistance * 4;
+        const mouseOscillation = {
+          x: mouseX * oscillationAmplitude * 2,
+          y: mouseY * oscillationAmplitude * 2
+        };
+        group.position.x = Math.sin(time * 0.4) * scrollFactor * oscillationAmplitude + mouseOscillation.x;
+        group.position.y = Math.cos(time * 0.3) * scrollFactor * oscillationAmplitude + mouseOscillation.y;
+        const twistAngle = (scrollFactor * Math.PI * 2 + mouseDistance * Math.PI) * Math.sin(time * 0.2);
+        const mouseTwist = (mouseX * mouseY) * Math.PI * 0.5;
+        group.rotation.x = Math.sin(time * 0.15) * 0.1 * scrollFactor + twistAngle * 0.1 + mouseTwist;
+      }
+      triangleMeshes.forEach((tri, i) => {
+        const triRotation = 0.0005 + scrollFactor * 0.001;
+        tri.rotation.x += triRotation;
+        const baseOpacity = 0.8 + scrollFactor * 0.2;
+        const targetOpacity = baseOpacity + 0.2 * Math.sin(time * (0.5 + i * 0.08) + scrollFactor * Math.PI);
+        tri.material.opacity += (targetOpacity - tri.material.opacity) * 0.1;
+        const targetTriScale = 1 + Math.sin(time * 0.3 + i) * 0.01 * scrollFactor;
+        const currentTriScale = tri.scale.x;
+        const smoothTriScale = currentTriScale + (targetTriScale - currentTriScale) * 0.1;
+        tri.scale.set(smoothTriScale, smoothTriScale, 1);
+      });
+      ringMeshes.forEach((ring, i) => {
+        const rotationSpeed = (0.001 + scrollFactor * 0.0005) * (i + 1);
+        ring.rotation.z += rotationSpeed;
+        const targetRingScale = 1 + scrollFactor * 0.08 * (i + 1);
+        ring.scale.lerp(new THREE.Vector3(targetRingScale, targetRingScale, 1), 0.1);
+      });
+      scene.children.forEach(child => {
+        if (child instanceof THREE.Group && child.children.length === 5) {
+          child.children.forEach((kosha, index) => {
+            const koshaSpeed = 0.0008 * (index + 1);
+            const direction = index % 2 === 0 ? 1 : -1;
+            kosha.rotation.z += koshaSpeed * direction;
+            const targetKoshaScale = 1 + scrollFactor * 0.2 * (5 - index) / 5;
+            kosha.scale.lerp(new THREE.Vector3(targetKoshaScale, targetKoshaScale, 1), 0.1);
+            const baseOpacity = 0.15 + scrollFactor * 0.2;
+            const targetOpacity = baseOpacity +
+              Math.sin(time * (0.3 + index * 0.08)) * 0.08 +
+              scrollFactor * 0.15 * (5 - index) / 5;
+            kosha.material.opacity += (targetOpacity - kosha.material.opacity) * 0.1;
+            const breathingScale = 1 + Math.sin(time * (0.2 + index * 0.05)) * 0.02;
+            kosha.scale.multiplyScalar(breathingScale);
+          });
+        }
+      });
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('scroll', () => {
+      scrollY = window.scrollY;
+    });
+
+    window.addEventListener('resize', () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    });
+
+    window.addEventListener('load', () => {
+      const loadingOverlay = document.getElementById('loading');
+      loadingOverlay.style.transition = "opacity 1s ease";
+      loadingOverlay.style.opacity = "0";
+      setTimeout(() => {
+        loadingOverlay.style.display = "none";
+      }, 1000);
+      initMeditationControls();
+    });
+
+    document.addEventListener('mousemove', (event) => {
+      targetMouseX = (event.clientX / window.innerWidth) * 2 - 1;
+      targetMouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+      camera.position.x += (targetMouseX * 2 - camera.position.x) * 0.05;
+      camera.position.y += (targetMouseY * 2 - camera.position.y) * 0.05;
+      mouseX += (targetMouseX - mouseX) * 0.1;
+      mouseY += (targetMouseY - mouseY) * 0.1;
+    });
+    
+    const natureSounds = document.getElementById('natureSounds');
+    const volumeControls = document.querySelectorAll('.nature-volume');
+    
+    function toggleNatureSound() {
+      if (natureSounds.paused) {
+        natureSounds.play();
+        document.querySelectorAll('.meditation-controls button').forEach(btn => {
+          if (btn.textContent.includes('Nature')) btn.textContent = '🔇 Mute Nature';
+        });
+      } else {
+        natureSounds.pause();
+        document.querySelectorAll('.meditation-controls button').forEach(btn => {
+          if (btn.textContent.includes('Nature')) btn.textContent = '🎵 Nature Sounds';
+        });
+      }
+    }
+    
+    volumeControls.forEach(control => {
+      control.addEventListener('input', (e) => {
+        natureSounds.volume = e.target.value / 100;
+        volumeControls.forEach(vc => {
+          vc.value = e.target.value;
+        });
+      });
+    });
+    
+    document.querySelector('.meditation-toggle').addEventListener('click', () => {
+      document.querySelector('.meditation-controls').classList.toggle('expanded');
+    });
+    
+    function initMeditationControls() {
+      const controls = document.querySelector('.meditation-controls');
+      controls.style.opacity = '0';
+      setTimeout(() => {
+        controls.style.opacity = '1';
+      }, 1000);
+    }
+    
+    natureSounds.volume = 0.3;
+    init();
+
+    // Paper handling functions
+    async function showPaper(paperName, updateUrl = true) {
+      const modal = document.getElementById('paperModal');
+      const content = document.getElementById('paperContent');
+      try {
+        const response = await fetch(paperName + '.txt');
+        const text = await response.text();
+        const html = text
+          .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+          .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+          .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(/\n\n/g, '</p><p>');
+        content.innerHTML = '<p>' + html + '</p>';
+        modal.classList.add('active');
+        if (updateUrl) {
+          window.location.hash = `paper=${paperName}`;
+        }
+        document.body.style.overflow = 'hidden';
+      } catch (error) {
+        console.error('Error loading paper:', error);
+      }
+    }
+
+    function closePaper() {
+      const modal = document.getElementById('paperModal');
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      history.pushState("", document.title, window.location.pathname + window.location.search);
+    }
+
+    document.getElementById('paperModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closePaper();
+      }
+    });
+
+    window.addEventListener('hashchange', function() {
+      const hash = window.location.hash;
+      if (hash.startsWith('#paper=')) {
+        const paperName = hash.replace('#paper=', '');
+        showPaper(paperName, false);
+      } else if (!hash) {
+        closePaper();
+      }
+    });
+
+    window.addEventListener('load', function() {
+      const hash = window.location.hash;
+      if (hash.startsWith('#paper=')) {
+        const paperName = hash.replace('#paper=', '');
+        showPaper(paperName, false);
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closePaper();
+      }
+    });
+
+    // Research Chat Functions (using class toggling for sliding modal)
+    function startResearchChat() {
+      const modal = document.getElementById('researchChatModal');
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('researchQuery').value = '';
+      
+      // Initialize range input displays
+      updateRangeValue('breadthInput');
+      updateRangeValue('depthInput');
+    }
+
+    function closeResearchChat() {
+      const modal = document.getElementById('researchChatModal');
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function updateRangeValue(inputId) {
+      const input = document.getElementById(inputId);
+      const valueSpan = document.getElementById(inputId.replace('Input', 'Value'));
+      valueSpan.textContent = input.value;
+      
+      input.addEventListener('input', () => {
+        valueSpan.textContent = input.value;
+      });
+    }
+
+    function addMessage(content, isUser = false) {
+      const messagesDiv = document.getElementById('chatMessages');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
+      messageDiv.textContent = content;
+      messagesDiv.appendChild(messageDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    async function handleResearchSubmit(event) {
+      event.preventDefault();
+      const query = document.getElementById('researchQuery').value.trim();
+      const breadth = document.getElementById('breadthInput').value;
+      const depth = document.getElementById('depthInput').value;
+      
+      if (!query) {
+        return;
+      }
+      
+      // Add user message
+      addMessage(query, true);
+      
+      // Disable form while processing
+      const form = document.getElementById('researchForm');
+      const submitButton = form.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      submitButton.textContent = 'Researching...';
+      
+      try {
+        // Simulate research response with meditation/consciousness themed content
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        const responses = [
+          "Based on ancient Vedantic texts and modern neuroscience, consciousness exists in multiple layers or koshas. Your query touches on the interface between the vijnanamaya (intellectual) and anandamaya (bliss) koshas.",
+          "The practice of meditation creates measurable changes in brain wave patterns, particularly in alpha and theta frequencies. This aligns with traditional yogic understanding of consciousness states.",
+          "Research suggests a correlation between regular meditation practice and increased gray matter density in areas associated with self-awareness, compassion, and introspection.",
+          "Modern physics, particularly quantum mechanics, has interesting parallels with ancient Eastern philosophies regarding the nature of consciousness and reality."
+        ];
+        
+        // Add responses with delays
+        for (let response of responses) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          addMessage(response);
+        }
+        
+      } catch (error) {
+        addMessage('An error occurred while processing your request. Please try again.');
+      } finally {
+        // Re-enable form
+        submitButton.disabled = false;
+        submitButton.textContent = 'Begin Research';
+        document.getElementById('researchQuery').value = '';
+      }
+    }
+
+    document.addEventListener('click', function(e) {
+      const modal = document.getElementById('researchChatModal');
+      if (e.target === modal) {
+        closeResearchChat();
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeResearchChat();
+      }
+    });
+  </script>
+</body>
+</html>
