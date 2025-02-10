@@ -56,16 +56,14 @@
       overflow: hidden;
     }
     .meditation-toggle::before {
-      content: '';
+      content: 'ॐ';
       position: absolute;
       top: 50%;
       left: 18px;
-      width: 20px;
-      height: 20px;
       transform: translateY(-50%);
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
+      font-size: 1.2em;
+      color: rgba(255, 255, 255, 0.8);
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
     }
     .meditation-toggle::after {
       content: '';
@@ -576,6 +574,67 @@
     .chat-submit:active {
       transform: translateY(1px);
     }
+
+    /* Password Modal Styling */
+    .password-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1001;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .password-content {
+      background: linear-gradient(135deg, rgba(13, 13, 15, 0.97), rgba(18, 18, 22, 0.98));
+      padding: 30px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+    
+    .password-content h3 {
+      margin-bottom: 20px;
+      color: white;
+    }
+    
+    .password-content input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: white;
+      font-size: 1em;
+    }
+    
+    .password-content button {
+      padding: 12px 30px;
+      margin-top: 10px;
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.8), rgba(147, 112, 219, 0.8));
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .password-content button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .password-error {
+      margin-top: 10px;
+      font-size: 0.9em;
+    }
   </style>
 </head>
 <body>
@@ -585,25 +644,24 @@
   <!-- Meditation Controls HTML (Sidebar) -->
   <div class="meditation-controls">
     <div class="meditation-toggle">
-      <span class="icon">🕉️</span>
       <span class="timer"></span>
     </div>
     <div class="meditation-content">
       <!-- Meditation Timing & Nature Sounds -->
       <div class="meditation-section">
         <h3>Meditation Controls</h3>
-        <button onclick="toggleNatureSound()">🎵 Nature Sounds</button>
+        <button onclick="toggleNatureSound()">॥ Toggle Nature Sounds</button>
         <input type="range" class="nature-volume" min="0" max="100" value="30">
-        <button onclick="startMeditation(600)">10 Minutes</button>
-        <button onclick="startMeditation(1200)">20 Minutes</button>
-        <button onclick="startMeditation(1800)">30 Minutes</button>
+        <button onclick="startMeditation(600)">१० Ten Minutes</button>
+        <button onclick="startMeditation(1200)">२० Twenty Minutes</button>
+        <button onclick="startMeditation(1800)">३० Thirty Minutes</button>
       </div>
       
       <!-- Research Section -->
       <div class="meditation-section research-section">
         <h3>Deep Research</h3>
         <button onclick="startResearchChat()" class="research-chat-btn">
-          <span class="icon">🤖</span> Start Research Chat
+          <span class="icon">ज्ञ</span> Begin Research Inquiry
         </button>
         <div class="research-papers">
           <div class="paper-card" onclick="showPaper('ai-and-deflation')">
@@ -614,7 +672,6 @@
               <span class="paper-tag">Economics</span>
             </div>
           </div>
-          <!-- More paper cards can be added here -->
         </div>
       </div>
       
@@ -742,7 +799,17 @@ The knower and the known combine
     </div>
   </div>
 
-  <!-- Paper Modal (unchanged) -->
+  <!-- Password Modal -->
+  <div class="password-modal" id="passwordModal">
+    <div class="password-content">
+      <h3>Enter Password</h3>
+      <input type="password" id="researchPassword" placeholder="Enter password">
+      <button onclick="checkPassword(event)">Submit</button>
+      <p class="password-error" style="display: none; color: #ff6b6b;">Incorrect password</p>
+    </div>
+  </div>
+
+  <!-- Paper Modal -->
   <div class="paper-modal" id="paperModal">
     <button class="modal-close" onclick="closePaper()">×</button>
     <div class="modal-content" id="paperContent">
@@ -1638,12 +1705,12 @@ The knower and the known combine
       if (natureSounds.paused) {
         natureSounds.play();
         document.querySelectorAll('.meditation-controls button').forEach(btn => {
-          if (btn.textContent.includes('Nature')) btn.textContent = '🔇 Mute Nature';
+          if (btn.textContent.includes('Nature')) btn.textContent = '॥ Toggle Nature Sounds';
         });
       } else {
         natureSounds.pause();
         document.querySelectorAll('.meditation-controls button').forEach(btn => {
-          if (btn.textContent.includes('Nature')) btn.textContent = '🎵 Nature Sounds';
+          if (btn.textContent.includes('Nature')) btn.textContent = '॥ Toggle Nature Sounds';
         });
       }
     }
@@ -1736,15 +1803,56 @@ The knower and the known combine
 
     // Research Chat Functions (using class toggling for sliding modal)
     function startResearchChat() {
-      const modal = document.getElementById('researchChatModal');
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-      document.getElementById('researchQuery').value = '';
-      
-      // Initialize range input displays
-      updateRangeValue('breadthInput');
-      updateRangeValue('depthInput');
+      const passwordModal = document.getElementById('passwordModal');
+      passwordModal.style.display = 'flex';
+      document.getElementById('researchPassword').value = '';
+      document.getElementById('researchPassword').focus();
+      document.querySelector('.password-error').style.display = 'none';
     }
+
+    function checkPassword(event) {
+      event.preventDefault();
+      const password = document.getElementById('researchPassword').value;
+      const correctPassword = 'becomeatman';
+      
+      if (password === correctPassword) {
+        const passwordModal = document.getElementById('passwordModal');
+        const modal = document.getElementById('researchChatModal');
+        
+        passwordModal.style.display = 'none';
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('researchQuery').value = '';
+        
+        // Initialize range input displays
+        updateRangeValue('breadthInput');
+        updateRangeValue('depthInput');
+      } else {
+        document.querySelector('.password-error').style.display = 'block';
+      }
+    }
+
+    // Add event listener for Enter key in password input
+    document.getElementById('researchPassword').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        checkPassword(e);
+      }
+    });
+
+    // Close password modal when clicking outside
+    document.getElementById('passwordModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.style.display = 'none';
+      }
+    });
+
+    // Close both modals on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.getElementById('passwordModal').style.display = 'none';
+        closeResearchChat();
+      }
+    });
 
     function closeResearchChat() {
       const modal = document.getElementById('researchChatModal');
