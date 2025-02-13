@@ -30,23 +30,7 @@ app.post('/api/research', async (req: Request, res: Response) => {
     const validatedBreadth = Math.min(Math.max(parseInt(String(breadth)) || 4, 2), 10);
     const validatedDepth = Math.min(Math.max(parseInt(String(depth)) || 2, 1), 5);
 
-    // Set up SSE headers
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-
-    const sendUpdate = (message: string) => {
-      res.write(`data: ${JSON.stringify({ message })}\n\n`);
-    };
-
-    // Handle client disconnect
-    req.on('close', () => {
-      res.end();
-    });
-
     try {
-      sendUpdate('Starting research process...');
-      
       // Start the research process
       const results = await deepResearch({
         query,
@@ -57,17 +41,22 @@ app.post('/api/research', async (req: Request, res: Response) => {
       });
 
       // Write final report
-      await writeFinalReport({
+      const report = await writeFinalReport({
         prompt: query,
         learnings: results.learnings,
         visitedUrls: results.visitedUrls
       });
 
-      sendUpdate('Research completed! Check the output.md file for results.');
-      res.end();
+      res.json({
+        responses: [
+          'Starting research process...',
+          ...results.learnings,
+          'Research completed! Here are the findings:',
+          report
+        ]
+      });
     } catch (error) {
-      sendUpdate('Error: Research process failed');
-      res.end();
+      res.status(500).json({ error: 'Research process failed' });
     }
   } catch (error) {
     console.error('Research error:', error);
