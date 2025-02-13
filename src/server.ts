@@ -4,6 +4,14 @@ import path from 'path';
 import { deepResearch, writeFinalReport } from './deep-research';
 import { EventEmitter } from 'events';
 
+// Check required environment variables
+const requiredEnvVars = ['FIRECRAWL_KEY', 'OPENAI_KEY'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+  console.error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
+}
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -20,6 +28,14 @@ app.get('/', (_req: Request, res: Response) => {
 // Research API endpoint
 app.post('/api/research', async (req: Request, res: Response) => {
   try {
+    // Check if API keys are configured
+    if (missingEnvVars.length > 0) {
+      return res.status(500).json({ 
+        error: 'Server configuration error: Missing API keys',
+        details: `Missing: ${missingEnvVars.join(', ')}`
+      });
+    }
+
     const { query, breadth, depth } = req.body;
 
     if (!query || typeof query !== 'string') {
