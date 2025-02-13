@@ -18,9 +18,9 @@ app.get('/', (_req: Request, res: Response) => {
 });
 
 // Research API endpoint
-app.get('/api/research', async (req: Request, res: Response) => {
+app.post('/api/research', async (req: Request, res: Response) => {
   try {
-    const { query, breadth, depth } = req.query;
+    const { query, breadth, depth } = req.body;
 
     if (!query || typeof query !== 'string') {
       return res.status(400).json({ error: 'Query is required' });
