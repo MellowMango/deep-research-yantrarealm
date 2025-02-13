@@ -154,72 +154,82 @@ export async function deepResearch({
   learnings?: string[];
   visitedUrls?: string[];
 }): Promise<ResearchResult> {
-  const serpQueries = await generateSerpQueries({
-    query,
-    learnings,
-    numQueries: breadth,
-  });
-  const limit = pLimit(ConcurrencyLimit);
+  console.log('Starting deep research with params:', { query, breadth, depth });
+  try {
+    console.log('Generating SERP queries...');
+    const serpQueries = await generateSerpQueries({
+      query,
+      numQueries: breadth,
+      learnings,
+    });
+    console.log(`Generated ${serpQueries.length} SERP queries`);
 
-  const results = await Promise.all(
-    serpQueries.map(serpQuery =>
-      limit(async () => {
-        try {
-          const result = await firecrawl.search(serpQuery.query, {
-            timeout: 15000,
-            limit: 5,
-            scrapeOptions: { formats: ['markdown'] },
-          });
-
-          // Collect URLs from this search
-          const newUrls = compact(result.data.map(item => item.url));
-          const newBreadth = Math.ceil(breadth / 2);
-          const newDepth = depth - 1;
-
-          const newLearnings = await processSerpResult({
-            query: serpQuery.query,
-            result,
-            numFollowUpQuestions: newBreadth,
-          });
-          const allLearnings = [...learnings, ...newLearnings.learnings];
-          const allUrls = [...visitedUrls, ...newUrls];
-
-          if (newDepth > 0) {
-            console.log(
-              `Researching deeper, breadth: ${newBreadth}, depth: ${newDepth}`,
-            );
-
-            const nextQuery = `
-            Previous research goal: ${serpQuery.researchGoal}
-            Follow-up research directions: ${newLearnings.followUpQuestions.map(q => `\n${q}`).join('')}
-          `.trim();
-
-            return deepResearch({
-              query: nextQuery,
-              breadth: newBreadth,
-              depth: newDepth,
-              learnings: allLearnings,
-              visitedUrls: allUrls,
+    const limit = pLimit(ConcurrencyLimit);
+    const results = await Promise.all(
+      serpQueries.map(serpQuery =>
+        limit(async () => {
+          console.log('Processing SERP query:', serpQuery.query);
+          try {
+            const result = await firecrawl.search(serpQuery.query, {
+              timeout: 15000,
+              limit: 5,
+              scrapeOptions: { formats: ['markdown'] },
             });
-          } else {
+
+            const newUrls = compact(result.data.map(item => item.url));
+            const newBreadth = Math.ceil(breadth / 2);
+            const newDepth = depth - 1;
+
+            const newLearnings = await processSerpResult({
+              query: serpQuery.query,
+              result,
+              numFollowUpQuestions: newBreadth,
+            });
+            const allLearnings = [...learnings, ...newLearnings.learnings];
+            const allUrls = [...visitedUrls, ...newUrls];
+
+            if (newDepth > 0) {
+              console.log(
+                `Researching deeper, breadth: ${newBreadth}, depth: ${newDepth}`,
+              );
+
+              const nextQuery = `
+              Previous research goal: ${serpQuery.researchGoal}
+              Follow-up research directions: ${newLearnings.followUpQuestions.map(q => `\n${q}`).join('')}
+            `.trim();
+
+              return deepResearch({
+                query: nextQuery,
+                breadth: newBreadth,
+                depth: newDepth,
+                learnings: allLearnings,
+                visitedUrls: allUrls,
+              });
+            } else {
+              return {
+                learnings: allLearnings,
+                visitedUrls: allUrls,
+              };
+            }
+          } catch (e) {
+            console.error(`Error running query: ${serpQuery.query}: `, e);
             return {
-              learnings: allLearnings,
-              visitedUrls: allUrls,
+              learnings: [],
+              visitedUrls: [],
             };
           }
-        } catch (e) {
-          console.error(`Error running query: ${serpQuery.query}: `, e);
-          return {
-            learnings: [],
-            visitedUrls: [],
-          };
-        }
-      }),
-    ),
-  );
+        }),
+      ),
+    );
 
-  return {
-    learnings: [...new Set(results.flatMap(r => r.learnings))],
-    visitedUrls: [...new Set(results.flatMap(r => r.visitedUrls))],
-  };
+    console.log(`Processed ${results.flatMap(r => r.learnings).length} results`);
+
+    return {
+      learnings: [...new Set(results.flatMap(r => r.learnings))],
+      visitedUrls: [...new Set(results.flatMap(r => r.visitedUrls))],
+    };
+  } catch (error) {
+    console.error('Error in deep research:', error);
+    throw error;
+  }
 }
