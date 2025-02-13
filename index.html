@@ -504,8 +504,6 @@
     }
     /* --- End Revised Sidebar / Modal Layout --- */
     
-    /* (The remaining CSS for quotes, poem, and Three.js art remains unchanged.) */
-    
     /* Chat Message Styling */
     .message {
       padding: 15px 20px;
@@ -998,22 +996,10 @@ The knower and the known combine
         shape.lineTo(s/2, -h/2);
         shape.lineTo(0, h);
         const geometry = new THREE.ShapeGeometry(shape, 64);
-        const fillMaterial = new THREE.MeshBasicMaterial({ 
-          color: colors.upward, 
-          transparent: true, 
-          opacity: 0.15,
-          blending: THREE.AdditiveBlending,
-          side: THREE.DoubleSide
-        });
+        const fillMaterial = new THREE.MeshBasicMaterial({ color: colors.upward, transparent: true, opacity: 0.15 });
         const filledTriangle = new THREE.Mesh(geometry, fillMaterial);
         const edges = new THREE.EdgesGeometry(geometry);
-        const material = new THREE.LineBasicMaterial({ 
-          color: colors.upward, 
-          transparent: true, 
-          opacity: 0.9, 
-          linewidth: 3,
-          blending: THREE.AdditiveBlending 
-        });
+        const material = new THREE.LineBasicMaterial({ color: colors.upward, transparent: true, opacity: 0.9, linewidth: 3 });
         const triangle = new THREE.LineSegments(edges, material);
         const glowMaterial = material.clone();
         glowMaterial.opacity = 0.3;
@@ -1036,22 +1022,10 @@ The knower and the known combine
         shape.lineTo(s/2, h/2);
         shape.lineTo(0, -h);
         const geometry = new THREE.ShapeGeometry(shape, 64);
-        const fillMaterial = new THREE.MeshBasicMaterial({ 
-          color: colors.downward, 
-          transparent: true, 
-          opacity: 0.15,
-          blending: THREE.AdditiveBlending,
-          side: THREE.DoubleSide
-        });
+        const fillMaterial = new THREE.MeshBasicMaterial({ color: colors.downward, transparent: true, opacity: 0.15 });
         const filledTriangle = new THREE.Mesh(geometry, fillMaterial);
         const edges = new THREE.EdgesGeometry(geometry);
-        const material = new THREE.LineBasicMaterial({ 
-          color: colors.downward, 
-          transparent: true, 
-          opacity: 0.9, 
-          linewidth: 3,
-          blending: THREE.AdditiveBlending 
-        });
+        const material = new THREE.LineBasicMaterial({ color: colors.downward, transparent: true, opacity: 0.9, linewidth: 3 });
         const triangle = new THREE.LineSegments(edges, material);
         const glowMaterial = material.clone();
         glowMaterial.opacity = 0.3;
@@ -1127,38 +1101,20 @@ The knower and the known combine
         const petalShape = createPetalShape(angle, petalWidth, petalLength, curvature);
         const geometry = new THREE.ShapeGeometry(petalShape, 48);
         const edges = new THREE.EdgesGeometry(geometry);
-        const material = new THREE.LineBasicMaterial({ 
-          color: colors.outer, 
-          transparent: true, 
-          opacity: 0.85,
-          linewidth: 2,
-          blending: THREE.AdditiveBlending 
-        });
+        const material = new THREE.LineBasicMaterial({ color: colors.outer, transparent: true, opacity: 0.85 });
         const petal = new THREE.LineSegments(edges, material);
         petal.position.z = -0.15;
         const innerShape = createPetalShape(angle, petalWidth * 0.75, petalLength * 0.9, curvature * 0.85);
         const innerGeometry = new THREE.ShapeGeometry(innerShape, 48);
         const innerEdges = new THREE.EdgesGeometry(innerGeometry);
-        const innerMaterial = new THREE.LineBasicMaterial({ 
-          color: colors.detail, 
-          transparent: true, 
-          opacity: 0.4,
-          linewidth: 1,
-          blending: THREE.AdditiveBlending 
-        });
+        const innerMaterial = new THREE.LineBasicMaterial({ color: colors.detail, transparent: true, opacity: 0.4 });
         const innerDetail = new THREE.LineSegments(innerEdges, innerMaterial);
         innerDetail.position.z = -0.14;
         const petalGroup = new THREE.Group();
         const glowShape = createPetalShape(angle, petalWidth * 1.1, petalLength * 1.1, curvature * 1.2);
         const glowGeometry = new THREE.ShapeGeometry(glowShape, 48);
         const glowEdges = new THREE.EdgesGeometry(glowGeometry);
-        const glowMaterial = new THREE.LineBasicMaterial({ 
-          color: colors.glow, 
-          transparent: true, 
-          opacity: 0.2,
-          linewidth: 1,
-          blending: THREE.AdditiveBlending 
-        });
+        const glowMaterial = new THREE.LineBasicMaterial({ color: colors.glow, transparent: true, opacity: 0.2 });
         const glowEffect = new THREE.LineSegments(glowEdges, glowMaterial);
         glowEffect.position.z = -0.16;
         petalGroup.add(glowEffect);
@@ -1174,38 +1130,20 @@ The knower and the known combine
         const petalShape = createPetalShape(angle, petalWidth, petalLength, curvature);
         const geometry = new THREE.ShapeGeometry(petalShape, 48);
         const edges = new THREE.EdgesGeometry(geometry);
-        const material = new THREE.LineBasicMaterial({ 
-          color: colors.inner, 
-          transparent: true, 
-          opacity: 0.9,
-          linewidth: 2,
-          blending: THREE.AdditiveBlending 
-        });
+        const material = new THREE.LineBasicMaterial({ color: colors.inner, transparent: true, opacity: 0.9 });
         const petal = new THREE.LineSegments(edges, material);
         petal.position.z = -0.05;
         const innerShape = createPetalShape(angle, petalWidth * 0.7, petalLength * 0.85, curvature * 0.8);
         const innerGeometry = new THREE.ShapeGeometry(innerShape, 48);
         const innerEdges = new THREE.EdgesGeometry(innerGeometry);
-        const innerMaterial = new THREE.LineBasicMaterial({ 
-          color: colors.detail, 
-          transparent: true, 
-          opacity: 0.5,
-          linewidth: 1,
-          blending: THREE.AdditiveBlending 
-        });
+        const innerMaterial = new THREE.LineBasicMaterial({ color: colors.detail, transparent: true, opacity: 0.5 });
         const innerDetail = new THREE.LineSegments(innerEdges, innerMaterial);
         innerDetail.position.z = -0.04;
         const petalGroup = new THREE.Group();
         const glowShape = createPetalShape(angle, petalWidth * 1.15, petalLength * 1.15, curvature * 1.2);
         const glowGeometry = new THREE.ShapeGeometry(glowShape, 48);
         const glowEdges = new THREE.EdgesGeometry(glowGeometry);
-        const glowMaterial = new THREE.LineBasicMaterial({ 
-          color: colors.glow, 
-          transparent: true, 
-          opacity: 0.25,
-          linewidth: 1,
-          blending: THREE.AdditiveBlending 
-        });
+        const glowMaterial = new THREE.LineBasicMaterial({ color: colors.glow, transparent: true, opacity: 0.25 });
         const glowEffect = new THREE.LineSegments(glowEdges, glowMaterial);
         glowEffect.position.z = -0.06;
         petalGroup.add(glowEffect);
@@ -1899,20 +1837,19 @@ The knower and the known combine
       submitButton.textContent = 'Researching...';
       
       try {
-        // Simulate research response with meditation/consciousness themed content
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        const responses = [
-          "Based on ancient Vedantic texts and modern neuroscience, consciousness exists in multiple layers or koshas. Your query touches on the interface between the vijnanamaya (intellectual) and anandamaya (bliss) koshas.",
-          "The practice of meditation creates measurable changes in brain wave patterns, particularly in alpha and theta frequencies. This aligns with traditional yogic understanding of consciousness states.",
-          "Research suggests a correlation between regular meditation practice and increased gray matter density in areas associated with self-awareness, compassion, and introspection.",
-          "Modern physics, particularly quantum mechanics, has interesting parallels with ancient Eastern philosophies regarding the nature of consciousness and reality."
-        ];
-        
-        // Add responses with delays
-        for (let response of responses) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          addMessage(response);
+        const response = await fetch('/api/deep-research', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ query, breadth, depth })
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        for (let msg of data.responses) {
+          addMessage(msg);
         }
         
       } catch (error) {
