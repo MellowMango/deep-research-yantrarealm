@@ -1,8 +1,12 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { deepResearch, writeFinalReport } from './deep-research.js';
 import { EventEmitter } from 'events';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Check required environment variables
 const requiredEnvVars = ['FIRECRAWL_KEY', 'OPENAI_KEY'];
