@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>In the Depths of the Bindu</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕉️</text></svg>" type="image/svg+xml">
   <style>
@@ -93,7 +94,10 @@
       -webkit-text-fill-color: transparent;
     }
     .meditation-content {
-      display: none;
+      display: block;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
       position: absolute;
       top: calc(100% + 5px);
       left: 0;
@@ -109,8 +113,9 @@
       border: 1px solid rgba(255, 255, 255, 0.15);
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
       transform: translateY(-10px) scale(0.98);
-      opacity: 0;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                 opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                 padding 0s linear 0.4s;
     }
     .meditation-content::-webkit-scrollbar {
       width: 8px;
@@ -128,9 +133,12 @@
       background: rgba(255, 255, 255, 0.2);
     }
     .meditation-controls.expanded .meditation-content {
-      display: block;
-      transform: translateY(0) scale(1);
+      max-height: 1000px;
       opacity: 1;
+      padding: 25px;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                 opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                 padding 0s linear;
     }
     .meditation-section {
       margin-bottom: 30px;
@@ -356,8 +364,8 @@
       display: none;
     }
     
-    /* Research Chat Button Enhancement */
-    .research-chat-btn {
+    /* Paper Management Button Enhancement */
+    .paper-management-btn {
       margin-bottom: 20px !important;
       padding: 12px 20px !important;
       display: flex !important;
@@ -371,16 +379,101 @@
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    .research-chat-btn:hover {
+    .paper-management-btn:hover {
       background: linear-gradient(45deg, rgba(65, 105, 225, 0.25), rgba(147, 112, 219, 0.25)) !important;
       transform: translateY(-2px);
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     }
-    .research-chat-btn:active {
+    .paper-management-btn:active {
       transform: translateY(1px);
     }
-    .research-chat-btn .icon {
+    .paper-management-btn .icon {
       font-size: 1.3em;
+    }
+    
+    /* Paper Management Modal Styling */
+    .paper-management-modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      z-index: 1000;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    
+    .paper-management-modal.active {
+      display: block;
+    }
+    
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    
+    .modal-header h3 {
+      font-size: 1.8em;
+      margin: 0;
+      color: #fff;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1.1em;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: white;
+      font-size: 1em;
+      font-family: 'Georgia', serif;
+    }
+    
+    .form-group textarea {
+      min-height: 200px;
+      resize: vertical;
+    }
+    
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.8), rgba(147, 112, 219, 0.8));
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
     
     /* --- Revised Research Chat Modal and Sidebar Layout --- */
@@ -633,17 +726,40 @@
       margin-top: 10px;
       font-size: 0.9em;
     }
+
+    /* Updated responsive design */
+    @media (max-width: 768px) {
+      .meditation-controls {
+        left: 0;
+        width: 100%;
+        max-width: none;
+        padding: 0 10px;
+      }
+      .meditation-content {
+        min-width: 100%;
+        max-width: 100%;
+        border-radius: 0 0 20px 20px;
+      }
+      .research-chat-modal {
+        left: 0;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        border-radius: 0;
+      }
+    }
   </style>
 </head>
 <body>
   <!-- Loading Overlay -->
   <div id="loading">Loading...</div>
 
-  <!-- Meditation Controls HTML (Sidebar) -->
+  <!-- Updated meditation controls structure -->
+  <canvas id="canvas" aria-label="Interactive 3D meditation visualization"></canvas>
   <div class="meditation-controls">
-    <div class="meditation-toggle">
+    <button class="meditation-toggle" aria-label="Toggle Meditation Controls" aria-expanded="false">
       <span class="timer"></span>
-    </div>
+    </button>
     <div class="meditation-content">
       <!-- Meditation Timing & Nature Sounds -->
       <div class="meditation-section">
@@ -655,11 +771,11 @@
         <button onclick="startMeditation(1800)">३० Thirty Minutes</button>
       </div>
       
-      <!-- Research Section -->
-      <div class="meditation-section research-section">
-        <h3>Deep Research</h3>
-        <button onclick="startResearchChat()" class="research-chat-btn">
-          <span class="icon">ज्ञ</span> Begin Research Inquiry
+      <!-- Paper Management Section -->
+      <div class="meditation-section paper-management-section">
+        <h3>Paper Management</h3>
+        <button onclick="startPaperManagement()" class="paper-management-btn">
+          <span class="icon">ज्ञ</span> Manage Papers
         </button>
         <div class="research-papers">
           <div class="paper-card" onclick="showPaper('ai-and-deflation')">
@@ -677,36 +793,57 @@
       <div class="meditation-section">
         <h3>Upanishadic Wisdom</h3>
         <div class="quote-section">
-          "From the Unreal lead me to the Real, from darkness lead me to Light."  
-          <br>– Brihadaranyaka Upanishad
+          "From the Unreal lead me to the Real, from darkness lead me to Light, from death lead me to Immortality."  
+          <br>– Brihadaranyaka Upanishad 1.3.28
         </div>
         <div class="quote-section">
-          "As flowing rivers disappear in the sea, losing their names and forms, so a wise man, freed from name and form, attains the Purusha."  
-          <br>– Mundaka Upanishad
+          "As flowing rivers disappear in the sea, losing their names and forms, so a wise man, freed from name and form, attains the Purusha, who is greater than the great."  
+          <br>– Mundaka Upanishad 3.2.8
         </div>
         <div class="quote-section">
-          "As is the atom, so is the universe; as is the microcosm, so is the macrocosm."  
+          "That which is the subtle essence, in it all that exists has its self. That is the Truth. That is the Self. Tat Tvam Asi—That Thou Art."  
+          <br>– Chandogya Upanishad 6.8.7
+        </div>
+        <div class="quote-section">
+          "Where there is duality, one sees another, one smells another, one tastes another... But where everything has become just one's own Self, how could one see another, how could one smell another?"  
+          <br>– Brihadaranyaka Upanishad 4.5.15
+        </div>
+        <div class="quote-section">
+          "As is the atom, so is the universe; as is the microcosm, so is the macrocosm; as is the human body, so is the cosmic body; as is the human mind, so is the cosmic mind."  
           <br>– Upanishadic Teaching
         </div>
       </div>
 
-      <!-- Optional New Section: Chidakasha Reflections -->
+      <!-- Chidakasha Reflections - The Space of Consciousness -->
       <div class="meditation-section">
         <h3>Chidakasha Reflections</h3>
         <div class="quote-section">
           "When all the knots of the heart are loosed, then even here, in this human birth, the mortal becomes immortal."  
-          <br>– Katha Upanishad
+          <br>– Katha Upanishad 6.15
         </div>
         <div class="quote-section">
-          "There is that One, unmoving, who is swifter than mind. The gods could not overtake It, for It ran ahead."  
-          <br>– Isha Upanishad
+          "There is that One, unmoving, who is swifter than mind. The gods could not overtake It, for It ran ahead. Remaining still, It outstrips all others running."  
+          <br>– Isha Upanishad 4
         </div>
-        <p style="margin-top: 10px;">
-          Pause. Observe the swirl of geometry around you.  
-          Let the flow of prana guide your gaze inward,  
-          as the cosmic design whispers the secret of your own being.  
-          Drift into that unbounded Chidakasha—the luminous space of awareness—  
-          where all forms arise, dissolve, and re-emerge from the same eternal source.
+        <div class="quote-section">
+          "The Self is subtler than the subtle, greater than the great; It dwells in the heart of each living being. One who is free from desire and free from grief, with mind and senses tranquil, beholds the glory of the Self."  
+          <br>– Katha Upanishad 2.20
+        </div>
+        <p style="margin-top: 20px; line-height: 1.8; font-style: italic; color: rgba(255, 255, 255, 0.85);">
+          Pause. Observe the swirl of sacred geometry around you.<br>  
+          Let the flow of prana guide your gaze inward,<br>  
+          as the Sri Yantra whispers the secret of your own being.<br>  
+          See how the outer triangles point to the bindu at center—<br>
+          just as all experiences lead to the core of consciousness.<br>
+          <br>
+          Drift into that unbounded Chidakasha—the luminous space of pure awareness—<br>  
+          where all forms arise, dissolve, and re-emerge from the same eternal source.<br>
+          Witness how your thoughts appear and dissolve in this vast space,<br>
+          while the Witness remains ever unchanging, ever free.<br>
+          <br>
+          In this dance of forms, recognize what remains constant—<br>
+          That which watches the mind watching the world.<br>
+          That art Thou. Tat Tvam Asi.
         </p>
       </div>
 
@@ -758,52 +895,45 @@ The knower and the known combine
     </div>
   </div>
 
-  <!-- Three.js Canvas -->
-  <canvas id="canvas"></canvas>
-
-  <!-- Research Chat Modal (now outside meditation controls) -->
-  <div class="research-chat-modal" id="researchChatModal">
-    <div class="chat-header">
-      <h3>Deep Research Assistant</h3>
-      <button class="modal-close" onclick="closeResearchChat()">×</button>
-    </div>
-    <div class="chat-messages" id="chatMessages">
-      <div class="message assistant-message">
-        Welcome to the Deep Research Assistant. I'm here to help you explore and understand complex topics related to consciousness, meditation, and spiritual wisdom. What would you like to research today?
-      </div>
-    </div>
-    <div class="chat-input-container">
-      <form id="researchForm" onsubmit="handleResearchSubmit(event)">
-        <textarea 
-          id="researchQuery" 
-          class="chat-input" 
-          placeholder="Enter your research query..."
-          rows="3"
-        ></textarea>
-        <div class="parameter-controls">
-          <div class="parameter-group">
-            <label for="breadthInput">Research Breadth:</label>
-            <input type="range" id="breadthInput" min="1" max="5" value="3" class="parameter-input">
-            <span id="breadthValue">3</span>
-          </div>
-          <div class="parameter-group">
-            <label for="depthInput">Research Depth:</label>
-            <input type="range" id="depthInput" min="1" max="5" value="3" class="parameter-input">
-            <span id="depthValue">3</span>
-          </div>
-        </div>
-        <button type="submit" class="chat-submit">Begin Research</button>
-      </form>
-    </div>
-  </div>
 
   <!-- Password Modal -->
   <div class="password-modal" id="passwordModal">
     <div class="password-content">
       <h3>Enter Password</h3>
-      <input type="password" id="researchPassword" placeholder="Enter password">
+      <input type="password" id="paperPassword" placeholder="Enter password">
       <button onclick="checkPassword(event)">Submit</button>
       <p class="password-error" style="display: none; color: #ff6b6b;">Incorrect password</p>
+    </div>
+  </div>
+  
+  <!-- Paper Management Modal -->
+  <div class="paper-management-modal" id="paperManagementModal">
+    <div class="modal-header">
+      <h3>Paper Management</h3>
+      <button class="modal-close" onclick="closePaperManagement()">×</button>
+    </div>
+    <div class="modal-content">
+      <form id="addPaperForm" onsubmit="addNewPaper(event)">
+        <div class="form-group">
+          <label for="paperTitle">Paper Title</label>
+          <input 
+            type="text" 
+            id="paperTitle" 
+            placeholder="Enter paper title" 
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="paperContent">Paper Content</label>
+          <textarea 
+            id="paperContent" 
+            placeholder="Enter paper content (markdown format supported)" 
+            rows="12"
+            required
+          ></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Add Paper</button>
+      </form>
     </div>
   </div>
 
@@ -906,18 +1036,35 @@ The knower and the known combine
       evolvingGroup = new THREE.Group();
       scene.add(evolvingGroup);
       createEvolvingLayer();
+      
+      // Add sacred Om symbol that represents the ultimate reality
+      createOmSymbol();
+      
+      // Create subtle light effects representing divine consciousness
+      createDivineLight();
 
       maxScrollHeight = document.body.scrollHeight - window.innerHeight;
       animate();
     }
 
-    // Create extra layers for multi-dimensional effect
+    // Create extra layers for multi-dimensional effect - representing the seven chakras and veil of Maya
     function createMultiDimLayer() {
-      const layers = 4;
+      const layers = 7; // Seven layers symbolizing the seven chakras
+      const colors = [
+        0xff0000, // Muladhara (Root) - Red
+        0xff7f00, // Svadhishthana (Sacral) - Orange
+        0xffff00, // Manipura (Solar Plexus) - Yellow
+        0x00ff00, // Anahata (Heart) - Green
+        0x00ffff, // Vishuddha (Throat) - Blue
+        0x0000ff, // Ajna (Third Eye) - Indigo
+        0x8a2be2  // Sahasrara (Crown) - Violet
+      ];
+      
       for (let i = 0; i < layers; i++) {
+        // Create primary ring
         const ringGeometry = new THREE.RingGeometry(2 + i * 0.5, 2.2 + i * 0.5, 128);
         const ringMaterial = new THREE.MeshBasicMaterial({
-          color: 0x00ffcc,
+          color: colors[i % colors.length],
           side: THREE.DoubleSide,
           transparent: true,
           opacity: 0.15,
@@ -927,8 +1074,191 @@ The knower and the known combine
         ring.rotation.x = Math.PI / 2;
         ring.position.z = -1 - i * 0.3;
         ring.rotation.z = i * 0.5;
+        
+        // Add pulsation and lifecycle data
+        ring.userData.pulsationSpeed = 0.2 + (i * 0.05);
+        ring.userData.pulsationPhase = i * Math.PI / layers;
+        ring.userData.chakraIndex = i;
+        
         multiDimGroup.add(ring);
+        
+        // Add subtle geometric Sanskrit-inspired patterns for each chakra layer
+        if (i < colors.length) {
+          addChakraGeometry(ring, i);
+        }
       }
+    }
+    
+    // Adding symbolic geometries representing each chakra's yantra
+    function addChakraGeometry(ring, chakraIndex) {
+      // Different geometries based on chakra - simplified yantras
+      const chakraPatterns = [
+        createSquarePattern, // Muladhara - square
+        createCirclePattern, // Svadhishthana - crescent
+        createTrianglePattern, // Manipura - downward triangle
+        createStarPattern, // Anahata - hexagram
+        createCirclePattern, // Vishuddha - circle
+        createTrianglePattern, // Ajna - upward triangle
+        createLotusPattern // Sahasrara - thousand-petaled lotus
+      ];
+      
+      if (chakraPatterns[chakraIndex]) {
+        chakraPatterns[chakraIndex](ring, chakraIndex);
+      }
+    }
+    
+    function createSquarePattern(ring, index) {
+      const size = 0.5 + (index * 0.1);
+      const geometry = new THREE.BoxGeometry(size, size, 0.01);
+      const material = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.1,
+        wireframe: true
+      });
+      const pattern = new THREE.Mesh(geometry, material);
+      pattern.position.copy(ring.position);
+      pattern.position.z -= 0.1;
+      pattern.rotation.z = Math.PI / 4; // 45 degrees for square
+      multiDimGroup.add(pattern);
+    }
+    
+    function createTrianglePattern(ring, index) {
+      const size = 0.8 + (index * 0.1);
+      const shape = new THREE.Shape();
+      const direction = index === 2 ? -1 : 1; // Down for Manipura, up for Ajna
+      
+      // Create triangle pointing up or down
+      if (direction > 0) {
+        shape.moveTo(0, size * 0.5);
+        shape.lineTo(-size * 0.5, -size * 0.5);
+        shape.lineTo(size * 0.5, -size * 0.5);
+      } else {
+        shape.moveTo(0, -size * 0.5);
+        shape.lineTo(-size * 0.5, size * 0.5);
+        shape.lineTo(size * 0.5, size * 0.5);
+      }
+      
+      const geometry = new THREE.ShapeGeometry(shape);
+      const material = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.15,
+        wireframe: true,
+        side: THREE.DoubleSide
+      });
+      const pattern = new THREE.Mesh(geometry, material);
+      pattern.position.copy(ring.position);
+      pattern.position.z -= 0.1;
+      multiDimGroup.add(pattern);
+    }
+    
+    function createCirclePattern(ring, index) {
+      const radius = 0.6 + (index * 0.1);
+      const segments = index === 1 ? 32 : 64; // Crescent for Svadhishthana, circle for Vishuddha
+      const geometry = new THREE.CircleGeometry(radius, segments);
+      
+      // For Svadhishthana, create crescent by cutting circle
+      if (index === 1) {
+        const posArray = geometry.attributes.position.array;
+        for (let i = 0; i < posArray.length; i += 3) {
+          if (posArray[i] > 0 && posArray[i+1] > 0) {
+            posArray[i] *= 0.7;
+            posArray[i+1] *= 0.7;
+          }
+        }
+      }
+      
+      const material = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.12,
+        wireframe: true,
+        side: THREE.DoubleSide
+      });
+      const pattern = new THREE.Mesh(geometry, material);
+      pattern.position.copy(ring.position);
+      pattern.position.z -= 0.1;
+      multiDimGroup.add(pattern);
+    }
+    
+    function createStarPattern(ring, index) {
+      // Create a hexagram (Star of David) for Anahata
+      const size = 0.7 + (index * 0.1);
+      const shape = new THREE.Shape();
+      
+      // First triangle (pointing up)
+      shape.moveTo(0, size * 0.5);
+      shape.lineTo(-size * 0.5, -size * 0.5);
+      shape.lineTo(size * 0.5, -size * 0.5);
+      shape.lineTo(0, size * 0.5);
+      
+      // Second triangle (pointing down)
+      const shape2 = new THREE.Shape();
+      shape2.moveTo(0, -size * 0.5);
+      shape2.lineTo(-size * 0.5, size * 0.5);
+      shape2.lineTo(size * 0.5, size * 0.5);
+      shape2.lineTo(0, -size * 0.5);
+      
+      const geometry1 = new THREE.ShapeGeometry(shape);
+      const geometry2 = new THREE.ShapeGeometry(shape2);
+      
+      const material = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.15,
+        wireframe: true,
+        side: THREE.DoubleSide
+      });
+      
+      const triangle1 = new THREE.Mesh(geometry1, material);
+      const triangle2 = new THREE.Mesh(geometry2, material);
+      
+      triangle1.position.copy(ring.position);
+      triangle2.position.copy(ring.position);
+      triangle1.position.z -= 0.1;
+      triangle2.position.z -= 0.11;
+      
+      multiDimGroup.add(triangle1);
+      multiDimGroup.add(triangle2);
+    }
+    
+    function createLotusPattern(ring, index) {
+      // Create a simplified thousand-petaled lotus for Sahasrara
+      const petalCount = 16; // Simplified from 1000
+      const radius = 0.8;
+      const petalLength = 0.3;
+      
+      const group = new THREE.Group();
+      
+      for (let i = 0; i < petalCount; i++) {
+        const angle = (i / petalCount) * Math.PI * 2;
+        const curve = new THREE.EllipseCurve(
+          0, 0,                         // center
+          radius, radius,               // xRadius, yRadius
+          angle - 0.1, angle + 0.1,     // startAngle, endAngle
+          false,                        // clockwise
+          0                             // rotation
+        );
+        
+        const points = curve.getPoints(10);
+        points.push(new THREE.Vector2(0, 0)); // Connect back to center
+        
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineBasicMaterial({
+          color: 0xffffff,
+          transparent: true,
+          opacity: 0.2
+        });
+        
+        const petal = new THREE.Line(geometry, material);
+        petal.rotation.z = angle;
+        group.add(petal);
+      }
+      
+      group.position.copy(ring.position);
+      group.position.z -= 0.1;
+      multiDimGroup.add(group);
     }
 
     // Create golden rings radiating outward
@@ -1445,6 +1775,244 @@ The knower and the known combine
     }
 
     // Main animation loop
+    // Create the sacred Om symbol that represents the ultimate reality
+    function createOmSymbol() {
+      // Create a simpler, more abstract Om symbol using curves
+      const omGroup = new THREE.Group();
+      omGroup.position.set(0, 0, 3);
+      
+      // Define curves for the Om shape
+      const omCurves = [];
+      
+      // Main body curve
+      const mainCurve = new THREE.CurvePath();
+      const points1 = [
+        new THREE.Vector3(0, 0.5, 0),
+        new THREE.Vector3(0.2, 0.6, 0),
+        new THREE.Vector3(0.3, 0.2, 0),
+        new THREE.Vector3(0.1, -0.2, 0),
+        new THREE.Vector3(0, -0.4, 0),
+        new THREE.Vector3(0.2, -0.5, 0),
+        new THREE.Vector3(0.4, -0.3, 0),
+        new THREE.Vector3(0.3, 0, 0)
+      ];
+      
+      for (let i = 0; i < points1.length - 1; i++) {
+        mainCurve.add(new THREE.LineCurve3(points1[i], points1[i+1]));
+      }
+      
+      const mainGeometry = new THREE.BufferGeometry().setFromPoints(mainCurve.getPoints(50));
+      const mainMaterial = new THREE.LineBasicMaterial({
+        color: 0xFFD700,
+        transparent: true,
+        opacity: 0.7,
+        linewidth: 3,
+        blending: THREE.AdditiveBlending
+      });
+      
+      const mainLine = new THREE.Line(mainGeometry, mainMaterial);
+      omCurves.push(mainLine);
+      
+      // Top curve (represents the divine)
+      const topCurve = new THREE.CurvePath();
+      const points2 = [
+        new THREE.Vector3(0, 0.5, 0),
+        new THREE.Vector3(-0.2, 0.7, 0),
+        new THREE.Vector3(-0.4, 0.8, 0),
+        new THREE.Vector3(-0.5, 0.7, 0),
+        new THREE.Vector3(-0.4, 0.5, 0),
+        new THREE.Vector3(-0.2, 0.4, 0),
+        new THREE.Vector3(0, 0.5, 0)
+      ];
+      
+      for (let i = 0; i < points2.length - 1; i++) {
+        topCurve.add(new THREE.LineCurve3(points2[i], points2[i+1]));
+      }
+      
+      const topGeometry = new THREE.BufferGeometry().setFromPoints(topCurve.getPoints(50));
+      const topMaterial = new THREE.LineBasicMaterial({
+        color: 0xFFD700,
+        transparent: true,
+        opacity: 0.7,
+        linewidth: 3,
+        blending: THREE.AdditiveBlending
+      });
+      
+      const topLine = new THREE.Line(topGeometry, topMaterial);
+      omCurves.push(topLine);
+      
+      // Dot (represents the unmanifested)
+      const dotGeometry = new THREE.CircleGeometry(0.07, 32);
+      const dotMaterial = new THREE.MeshBasicMaterial({
+        color: 0xFFD700,
+        transparent: true,
+        opacity: 0.7,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending
+      });
+      
+      const dot = new THREE.Mesh(dotGeometry, dotMaterial);
+      dot.position.set(-0.7, 0.6, 0);
+      omCurves.push(dot);
+      
+      // Crescent (represents the three states of consciousness)
+      const crescentCurve = new THREE.CurvePath();
+      const points3 = [
+        new THREE.Vector3(0.3, 0, 0),
+        new THREE.Vector3(0.5, -0.1, 0),
+        new THREE.Vector3(0.6, -0.3, 0),
+        new THREE.Vector3(0.5, -0.5, 0),
+        new THREE.Vector3(0.3, -0.5, 0),
+        new THREE.Vector3(0.2, -0.3, 0)
+      ];
+      
+      for (let i = 0; i < points3.length - 1; i++) {
+        crescentCurve.add(new THREE.LineCurve3(points3[i], points3[i+1]));
+      }
+      
+      const crescentGeometry = new THREE.BufferGeometry().setFromPoints(crescentCurve.getPoints(50));
+      const crescentMaterial = new THREE.LineBasicMaterial({
+        color: 0xFFD700,
+        transparent: true,
+        opacity: 0.7,
+        linewidth: 3,
+        blending: THREE.AdditiveBlending
+      });
+      
+      const crescentLine = new THREE.Line(crescentGeometry, crescentMaterial);
+      omCurves.push(crescentLine);
+      
+      // Add all curves to the Om group
+      omCurves.forEach(curve => omGroup.add(curve));
+      
+      // Add glow effect
+      const glowMaterial = new THREE.MeshBasicMaterial({
+        color: 0xFFD700,
+        transparent: true,
+        opacity: 0.2,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending
+      });
+      
+      // Duplicate the curves with slight scaling for glow effect
+      omCurves.forEach(curve => {
+        if (curve instanceof THREE.Line) {
+          const glowCurve = curve.clone();
+          glowCurve.material = glowMaterial.clone();
+          glowCurve.scale.set(1.1, 1.1, 1.1);
+          omGroup.add(glowCurve);
+        } else if (curve instanceof THREE.Mesh) {
+          const glowDot = curve.clone();
+          glowDot.material = glowMaterial.clone();
+          glowDot.scale.set(1.5, 1.5, 1.5);
+          omGroup.add(glowDot);
+        }
+      });
+      
+      // Scale and position the entire Om symbol
+      omGroup.scale.set(1, 1, 1);
+      omGroup.position.set(0, 1.5, -5);
+      omGroup.rotation.z = Math.PI * 0.05;
+      
+      // Add metadata for animation
+      omGroup.userData.pulsationSpeed = 0.2;
+      omGroup.userData.rotationSpeed = 0.0003;
+      omGroup.userData.glowPhase = 0;
+      
+      scene.add(omGroup);
+      return omGroup;
+    }
+    
+    // Create divine light effects representing pure consciousness
+    function createDivineLight() {
+      // Create light rays emanating from the center
+      const rayCount = 12;
+      const rayGroup = new THREE.Group();
+      
+      for (let i = 0; i < rayCount; i++) {
+        const angle = (i / rayCount) * Math.PI * 2;
+        const length = 3 + Math.random() * 2;
+        
+        const rayGeometry = new THREE.PlaneGeometry(0.05, length);
+        const rayMaterial = new THREE.MeshBasicMaterial({
+          color: 0xfffacd, // Light yellow
+          transparent: true,
+          opacity: 0.3,
+          side: THREE.DoubleSide,
+          blending: THREE.AdditiveBlending
+        });
+        
+        const ray = new THREE.Mesh(rayGeometry, rayMaterial);
+        ray.position.set(Math.cos(angle) * 0.5, Math.sin(angle) * 0.5, -0.5);
+        ray.rotation.z = angle;
+        ray.userData.angle = angle;
+        ray.userData.pulseSpeed = 0.3 + Math.random() * 0.2;
+        ray.userData.length = length;
+        
+        rayGroup.add(ray);
+      }
+      
+      // Add an inner glow ring
+      const innerGlowGeometry = new THREE.RingGeometry(0.2, 0.4, 64);
+      const innerGlowMaterial = new THREE.MeshBasicMaterial({
+        color: 0xfffacd,
+        transparent: true,
+        opacity: 0.5,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending
+      });
+      
+      const innerGlow = new THREE.Mesh(innerGlowGeometry, innerGlowMaterial);
+      innerGlow.position.z = -0.4;
+      innerGlow.userData.pulseSpeed = 0.5;
+      rayGroup.add(innerGlow);
+      
+      // Add a subtle aura
+      const auraGeometry = new THREE.CircleGeometry(1.5, 64);
+      
+      // Create gradient texture using canvas
+      const size = 256;
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      
+      const context = canvas.getContext('2d');
+      const gradient = context.createRadialGradient(
+        size/2, size/2, 0,
+        size/2, size/2, size/2
+      );
+      
+      gradient.addColorStop(0, 'rgba(255, 250, 205, 0.7)');
+      gradient.addColorStop(0.5, 'rgba(255, 250, 205, 0.3)');
+      gradient.addColorStop(1, 'rgba(255, 250, 205, 0)');
+      
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, size, size);
+      
+      const texture = new THREE.CanvasTexture(canvas);
+      
+      const auraMaterial = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 0.2,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending
+      });
+      
+      const aura = new THREE.Mesh(auraGeometry, auraMaterial);
+      aura.position.z = -0.6;
+      aura.userData.pulseSpeed = 0.2;
+      rayGroup.add(aura);
+      
+      // Position the divine light group behind central bindu
+      rayGroup.position.set(0, 0, -1);
+      rayGroup.scale.set(1.5, 1.5, 1);
+      rayGroup.userData.rotationSpeed = 0.0005;
+      
+      scene.add(rayGroup);
+      return rayGroup;
+    }
+
     function animate() {
       requestAnimationFrame(animate);
       const scrollFactor = scrollY / maxScrollHeight || 0;
@@ -1603,7 +2171,144 @@ The knower and the known combine
             kosha.scale.multiplyScalar(breathingScale);
           });
         }
+        
+        // Animate Chakra patterns in the multi-dimensional layer
+        if (child === multiDimGroup) {
+          child.children.forEach(object => {
+            // Animate the chakra rings with pulsation
+            if (object.userData.pulsationSpeed) {
+              const pulseFactor = Math.sin(time * object.userData.pulsationSpeed + object.userData.pulsationPhase);
+              const chakraIndex = object.userData.chakraIndex || 0;
+              
+              // Different animation for each chakra (more vibrant at higher chakras)
+              const scaleFactor = 1 + (pulseFactor * 0.05) * (1 + chakraIndex * 0.03);
+              object.scale.set(scaleFactor, scaleFactor, 1);
+              
+              // Increase opacity with scroll and pulsation
+              const baseOpacity = 0.15 + scrollFactor * 0.1 * (chakraIndex + 1) / 7;
+              const pulseOpacity = baseOpacity + pulseFactor * 0.05;
+              
+              if (object.material) {
+                object.material.opacity = pulseOpacity;
+                
+                // Subtle color shifts representing energy activation
+                const hue = (chakraIndex / 7) + (time * 0.01 * (chakraIndex + 1) / 7) % 1;
+                const saturation = 0.7 + pulseFactor * 0.1;
+                const luminance = 0.5 + pulseFactor * 0.1;
+                const tempColor = new THREE.Color().setHSL(hue, saturation, luminance);
+                object.material.color.lerp(tempColor, 0.03);
+              }
+              
+              // Rotation speed increases with higher chakras
+              object.rotation.z += 0.001 * (chakraIndex + 1) / 7;
+            }
+          });
+        }
+        
+        // Animate Om symbol with subtle movements representing cosmic vibration
+        if (child instanceof THREE.Group && child.userData.pulsationSpeed) {
+          // Universal pulse - the primordial vibration
+          const pulse = Math.sin(time * child.userData.pulsationSpeed);
+          const scaleFactor = 1 + pulse * 0.05;
+          child.scale.set(scaleFactor, scaleFactor, scaleFactor);
+          
+          // Subtle rotation representing eternal motion
+          if (child.userData.rotationSpeed) {
+            child.rotation.z += child.userData.rotationSpeed;
+          }
+          
+          // Increase visibility with scroll
+          const opacityFactor = 0.5 + scrollFactor * 0.5;
+          
+          // Apply to all children (Om parts)
+          child.children.forEach(part => {
+            if (part.material) {
+              // Determine if this is a glow part
+              const isGlow = part.material.opacity < 0.3;
+              
+              // Set different opacities for main parts vs glow parts
+              if (isGlow) {
+                part.material.opacity = 0.2 * opacityFactor + pulse * 0.15;
+              } else {
+                part.material.opacity = 0.7 * opacityFactor + pulse * 0.1;
+              }
+            }
+          });
+          
+          // Move Om to appear gradually with scroll
+          const targetYPosition = 1.5 + (1 - normalizedScroll) * 2;
+          child.position.y += (targetYPosition - child.position.y) * 0.05;
+          
+          // Depth based on scroll - comes closer as you scroll
+          const targetZPosition = -5 + normalizedScroll * 2;
+          child.position.z += (targetZPosition - child.position.z) * 0.02;
+        }
+        
+        // Animate divine light rays
+        if (child instanceof THREE.Group && child.userData.rotationSpeed && child.children.length > 3) {
+          // Slow rotation of the entire light group
+          child.rotation.z += child.userData.rotationSpeed * (1 + scrollFactor);
+          
+          // Scale based on scroll - divine light grows as consciousness expands
+          const divineScale = 1.5 + scrollFactor * 1.5;
+          child.scale.lerp(new THREE.Vector3(divineScale, divineScale, 1), 0.02);
+          
+          // Opacity increases with scroll - representing spiritual awakening
+          const opacityFactor = 0.2 + scrollFactor * 0.8;
+          
+          // Animate each ray individually
+          child.children.forEach(ray => {
+            if (ray.userData.pulseSpeed) {
+              const rayPulse = Math.sin(time * ray.userData.pulseSpeed);
+              
+              // Rays pulse and extend
+              if (ray.geometry.type === "PlaneGeometry") {
+                // This is a light ray
+                const rayLength = ray.userData.length * (1 + rayPulse * 0.2);
+                ray.scale.y = rayLength * (1 + scrollFactor * 0.5);
+                ray.material.opacity = 0.3 * opacityFactor * (1 + rayPulse * 0.3);
+              } else if (ray.geometry.type === "RingGeometry") {
+                // This is the inner glow
+                const ringPulse = 1 + rayPulse * 0.15;
+                ray.scale.set(ringPulse, ringPulse, 1);
+                ray.material.opacity = 0.5 * opacityFactor * (1 + rayPulse * 0.2);
+              } else if (ray.geometry.type === "CircleGeometry") {
+                // This is the aura
+                const auraPulse = 1 + rayPulse * 0.08;
+                ray.scale.set(auraPulse, auraPulse, 1);
+                ray.material.opacity = 0.2 * opacityFactor * (1 + rayPulse * 0.15);
+              }
+            }
+          });
+        }
       });
+      
+      // Special chakra animation in the multi-dimensional layer
+      multiDimGroup.children.forEach((object, index) => {
+        if (index < 7) { // Only apply to the 7 chakra rings
+          // Rotation directions alternate by chakra
+          const direction = index % 2 === 0 ? 1 : -1;
+          const rotateSpeed = 0.001 * (index + 1) / 7 * direction;
+          object.rotation.z += rotateSpeed;
+          
+          // Visual effect of kundalini rising through chakras
+          const kundaliniActivation = Math.max(0, (scrollFactor * 8) - index);
+          if (kundaliniActivation > 0 && object.material) {
+            // Increase brightness based on activation
+            const activationPulse = Math.sin(time * 2) * 0.5 + 0.5;
+            const activationIntensity = Math.min(1, kundaliniActivation) * activationPulse;
+            
+            // Make chakra "glow" when activated
+            const baseOpacity = 0.15 + activationIntensity * 0.3;
+            object.material.opacity += (baseOpacity - object.material.opacity) * 0.1;
+            
+            // Increase chakra size as it activates
+            const activationScale = 1 + activationIntensity * 0.3;
+            object.scale.lerp(new THREE.Vector3(activationScale, activationScale, 1), 0.05);
+          }
+        }
+      });
+      
       renderer.render(scene, camera);
     }
 
@@ -1663,7 +2368,10 @@ The knower and the known combine
     });
     
     document.querySelector('.meditation-toggle').addEventListener('click', () => {
-      document.querySelector('.meditation-controls').classList.toggle('expanded');
+      const controls = document.querySelector('.meditation-controls');
+      const toggle = document.querySelector('.meditation-toggle');
+      controls.classList.toggle('expanded');
+      toggle.setAttribute('aria-expanded', controls.classList.contains('expanded'));
     });
     
     function initMeditationControls() {
@@ -1739,39 +2447,34 @@ The knower and the known combine
       }
     });
 
-    // Research Chat Functions (using class toggling for sliding modal)
-    function startResearchChat() {
+    // Paper Management Functions
+    function startPaperManagement() {
       const passwordModal = document.getElementById('passwordModal');
       passwordModal.style.display = 'flex';
-      document.getElementById('researchPassword').value = '';
-      document.getElementById('researchPassword').focus();
+      document.getElementById('paperPassword').value = '';
+      document.getElementById('paperPassword').focus();
       document.querySelector('.password-error').style.display = 'none';
     }
 
     function checkPassword(event) {
       event.preventDefault();
-      const password = document.getElementById('researchPassword').value;
+      const password = document.getElementById('paperPassword').value;
       const correctPassword = 'becomeatman';
       
       if (password === correctPassword) {
         const passwordModal = document.getElementById('passwordModal');
-        const modal = document.getElementById('researchChatModal');
+        const modal = document.getElementById('paperManagementModal');
         
         passwordModal.style.display = 'none';
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
-        document.getElementById('researchQuery').value = '';
-        
-        // Initialize range input displays
-        updateRangeValue('breadthInput');
-        updateRangeValue('depthInput');
       } else {
         document.querySelector('.password-error').style.display = 'block';
       }
     }
 
     // Add event listener for Enter key in password input
-    document.getElementById('researchPassword').addEventListener('keypress', function(e) {
+    document.getElementById('paperPassword').addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
         checkPassword(e);
       }
@@ -1788,90 +2491,66 @@ The knower and the known combine
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         document.getElementById('passwordModal').style.display = 'none';
-        closeResearchChat();
+        closePaperManagement();
       }
     });
 
-    function closeResearchChat() {
-      const modal = document.getElementById('researchChatModal');
+    function closePaperManagement() {
+      const modal = document.getElementById('paperManagementModal');
       modal.classList.remove('active');
       document.body.style.overflow = '';
     }
 
-    function updateRangeValue(inputId) {
-      const input = document.getElementById(inputId);
-      const valueSpan = document.getElementById(inputId.replace('Input', 'Value'));
-      valueSpan.textContent = input.value;
-      
-      input.addEventListener('input', () => {
-        valueSpan.textContent = input.value;
-      });
-    }
-
-    function addMessage(content, isUser = false) {
-      const messagesDiv = document.getElementById('chatMessages');
-      const messageDiv = document.createElement('div');
-      messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
-      messageDiv.textContent = content;
-      messagesDiv.appendChild(messageDiv);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-
-    async function handleResearchSubmit(event) {
+    async function addNewPaper(event) {
       event.preventDefault();
-      const query = document.getElementById('researchQuery').value.trim();
-      const breadth = document.getElementById('breadthInput').value;
-      const depth = document.getElementById('depthInput').value;
+      const title = document.getElementById('paperTitle').value.trim();
+      const content = document.getElementById('paperContent').value.trim();
       
-      if (!query) {
+      if (!title || !content) {
         return;
       }
       
-      // Add user message
-      addMessage(query, true);
-      
-      // Disable form while processing
-      const form = document.getElementById('researchForm');
-      const submitButton = form.querySelector('button[type="submit"]');
-      submitButton.disabled = true;
-      submitButton.textContent = 'Researching...';
-      
       try {
-        const response = await fetch('/api/research', {
+        const response = await fetch('/api/papers', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ query, breadth, depth })
+          body: JSON.stringify({ 
+            title, 
+            text: content,
+            password: 'becomeatman'
+          })
         });
+        
         if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        for (let msg of data.responses) {
-          addMessage(msg);
+          throw new Error('Error saving paper');
         }
         
+        const result = await response.json();
+        
+        alert(`Paper "${title}" was saved successfully!`);
+        
+        // Clear the form
+        document.getElementById('paperTitle').value = '';
+        document.getElementById('paperContent').value = '';
+        
+        // Close the modal
+        closePaperManagement();
+        
+        // Optional: reload to show the new paper
+        location.reload();
+        
       } catch (error) {
-        addMessage('An error occurred while processing your request. Please try again.');
-      } finally {
-        // Re-enable form
-        submitButton.disabled = false;
-        submitButton.textContent = 'Begin Research';
-        document.getElementById('researchQuery').value = '';
+        alert('An error occurred while saving the paper. Please try again.');
+        console.error('Error saving paper:', error);
       }
     }
 
     document.addEventListener('click', function(e) {
-      const modal = document.getElementById('researchChatModal');
+      const modal = document.getElementById('paperManagementModal');
       if (e.target === modal) {
-        closeResearchChat();
-      }
-    });
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        closeResearchChat();
+        closePaperManagement();
       }
     });
   </script>
