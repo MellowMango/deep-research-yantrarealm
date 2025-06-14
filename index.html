@@ -62,10 +62,29 @@
       top: 50%;
       left: 18px;
       transform: translateY(-50%);
-      font-size: 1.2em;
-      color: rgba(255, 255, 255, 0.8);
-      text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+      font-size: 1.3em;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 0 12px rgba(255, 215, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.2);
+      transition: all 0.3s ease;
+      animation: omGlow 3s ease-in-out infinite alternate;
     }
+    
+    @keyframes omGlow {
+      0% {
+        text-shadow: 0 0 12px rgba(255, 215, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.2);
+        transform: translateY(-50%) scale(1);
+      }
+      100% {
+        text-shadow: 0 0 16px rgba(255, 215, 0, 0.6), 0 0 24px rgba(255, 215, 0, 0.3), 0 0 30px rgba(255, 215, 0, 0.1);
+        transform: translateY(-50%) scale(1.05);
+      }
+    }
+    
+    .meditation-toggle:hover::before {
+      animation-duration: 1s;
+      text-shadow: 0 0 18px rgba(255, 215, 0, 0.8), 0 0 28px rgba(255, 215, 0, 0.4), 0 0 35px rgba(255, 215, 0, 0.2);
+    }
+    
     .meditation-toggle::after {
       content: '';
       position: absolute;
@@ -75,6 +94,13 @@
       height: 20px;
       transform: translateY(-50%) rotate(45deg);
       border: 1px solid rgba(255, 255, 255, 0.15);
+      opacity: 0.3;
+      transition: all 0.3s ease;
+    }
+    
+    .meditation-controls.expanded .meditation-toggle::after {
+      transform: translateY(-50%) rotate(225deg);
+      opacity: 0.6;
     }
     .meditation-toggle:hover {
       opacity: 1;
@@ -167,17 +193,29 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
     }
+    
     .meditation-section h3::before {
       content: '';
-      width: 24px;
-      height: 24px;
-      display: inline-block;
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.8), rgba(147, 112, 219, 0.8));
+      border-radius: 2px;
       margin-right: 12px;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: contain;
-      opacity: 0.8;
+    }
+    
+    .meditation-section h3::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 40px;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(65, 105, 225, 0.6), rgba(147, 112, 219, 0.6));
+      border-radius: 1px;
     }
     /* (Section-specific icons omitted here for brevity) */
     .meditation-controls button {
@@ -220,124 +258,322 @@
     .meditation-controls button:active {
       transform: translateY(1px);
     }
+    
+    .meditation-controls button:hover::after {
+      transform: translateX(100%);
+    }
+    
+    /* Enhanced Nature Volume Slider */
     .nature-volume {
       width: 100%;
       margin: 15px 0;
       -webkit-appearance: none;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      height: 4px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+      border-radius: 12px;
+      height: 6px;
       transition: all 0.3s ease;
+      outline: none;
+      position: relative;
     }
+    
+    .nature-volume:hover {
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
+    }
+    
     .nature-volume::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 16px;
-      height: 16px;
-      background: #fff;
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.9), rgba(147, 112, 219, 0.9));
+      border: 2px solid rgba(255, 255, 255, 0.8);
       border-radius: 50%;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2), 0 0 12px rgba(65, 105, 225, 0.3);
     }
+    
     .nature-volume::-webkit-slider-thumb:hover {
-      transform: scale(1.2);
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+      transform: scale(1.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 16px rgba(65, 105, 225, 0.5);
+      background: linear-gradient(135deg, rgba(65, 105, 225, 1), rgba(147, 112, 219, 1));
     }
+    
+    .nature-volume::-webkit-slider-thumb:active {
+      transform: scale(1.05);
+    }
+    
+    /* Enhanced meditation buttons with special icons */
+    .meditation-controls button[onclick*="toggleNatureSound"]::before {
+      content: '🌊';
+      margin-right: 8px;
+      font-size: 1.1em;
+    }
+    
+    .meditation-controls button[onclick*="startMeditation"]::before {
+      content: '🧘';
+      margin-right: 8px;
+      font-size: 1.1em;
+    }
+    /* Enhanced Quote Sections */
     .quote-section {
       font-style: italic;
       margin: 20px 0;
-      padding: 15px 20px;
-      border-left: 3px solid rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 0 12px 12px 0;
-      transition: all 0.3s ease;
+      padding: 18px 24px;
+      border-left: 4px solid transparent;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+      backdrop-filter: blur(8px);
+      border-radius: 0 16px 16px 0;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
       overflow: hidden;
+      border-left: 4px solid rgba(65, 105, 225, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
+    
+    .quote-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.02), rgba(147, 112, 219, 0.02));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+    }
+    
     .quote-section:hover {
-      background: rgba(255, 255, 255, 0.08);
-      transform: translateX(5px);
-      border-left-color: rgba(255, 255, 255, 0.4);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+      transform: translateX(8px) translateY(-2px);
+      border-left-color: rgba(65, 105, 225, 0.6);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1), 0 0 15px rgba(65, 105, 225, 0.1);
     }
+    
+    .quote-section:hover::before {
+      opacity: 1;
+    }
+    
     .quote-section::after {
       content: '"';
       position: absolute;
       right: 20px;
-      bottom: 10px;
-      font-size: 3em;
-      opacity: 0.1;
+      bottom: 8px;
+      font-size: 3.5em;
+      opacity: 0.08;
       font-family: Georgia, serif;
+      color: rgba(65, 105, 225, 0.3);
+      transition: all 0.3s ease;
     }
+    
+    .quote-section:hover::after {
+      opacity: 0.15;
+      transform: scale(1.1);
+    }
+    
+    /* Enhanced Poem Section */
     .poem-section {
       font-family: 'Georgia', serif;
       white-space: pre-wrap;
-      line-height: 1.8;
-      font-size: 1em;
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 12px;
-      margin: 15px 0;
-      transition: all 0.3s ease;
-    }
-    .poem-section:hover {
-      background: rgba(255, 255, 255, 0.05);
-      transform: translateY(-2px);
+      line-height: 1.9;
+      font-size: 1.05em;
+      padding: 28px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      margin: 20px 0;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
     }
     
-    /* Paper Modal Styles (unchanged) */
+    .poem-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(65, 105, 225, 0.03) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      z-index: -1;
+    }
+    
+    .poem-section:hover {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12), 0 0 20px rgba(65, 105, 225, 0.05);
+    }
+    
+    .poem-section:hover::before {
+      opacity: 1;
+    }
+    
+    /* Enhanced Paper Modal */
     .paper-modal {
       display: none;
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.95);
-      backdrop-filter: blur(20px);
-      padding: 30px;
-      border-radius: 20px;
-      width: 90%;
-      max-width: 1000px;
-      max-height: 90vh;
-      overflow-y: auto;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(15px);
       z-index: 1000;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
+    
     .paper-modal.active {
-      display: block;
+      display: flex;
+      opacity: 1;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
+    
     .modal-content {
+      background: linear-gradient(135deg, rgba(10, 10, 15, 0.98), rgba(15, 15, 22, 0.99));
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 40px;
+      width: 100%;
+      max-width: 900px;
+      max-height: 85vh;
+      overflow-y: auto;
       font-family: 'Georgia', serif;
-      line-height: 1.8;
+      line-height: 1.9;
       color: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 
+                  0 0 40px rgba(65, 105, 225, 0.05);
+      position: relative;
+      animation: modalSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
+    
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    .modal-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .modal-content::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 4px;
+    }
+    
+    .modal-content::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.4), rgba(147, 112, 219, 0.4));
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+    
+    .modal-content::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.6), rgba(147, 112, 219, 0.6));
+    }
+    
     .modal-content h1 {
-      font-size: 1.8em;
-      margin-bottom: 20px;
+      font-size: 2.2em;
+      margin-bottom: 24px;
       color: #fff;
+      font-weight: 700;
+      line-height: 1.3;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.8));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+      padding-bottom: 20px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 30px;
     }
+    
     .modal-content h2 {
-      font-size: 1.4em;
-      margin: 25px 0 15px;
+      font-size: 1.6em;
+      margin: 35px 0 20px;
       color: rgba(255, 255, 255, 0.95);
+      font-weight: 600;
+      position: relative;
+      padding-left: 20px;
     }
+    
+    .modal-content h2::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 60%;
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.8), rgba(147, 112, 219, 0.8));
+      border-radius: 2px;
+    }
+    
+    .modal-content h3 {
+      font-size: 1.3em;
+      margin: 25px 0 15px;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 500;
+    }
+    
     .modal-content p {
-      margin-bottom: 15px;
+      margin-bottom: 18px;
+      font-size: 1.05em;
+      text-align: justify;
+      text-justify: inter-word;
     }
+    
+    .modal-content strong {
+      color: rgba(255, 255, 255, 0.95);
+      font-weight: 600;
+    }
+    
+    .modal-content em {
+      color: rgba(255, 255, 255, 0.85);
+      font-style: italic;
+    }
+    
     .modal-close {
       position: absolute;
-      top: 20px;
-      right: 20px;
-      background: none;
-      border: none;
-      color: #fff;
-      font-size: 1.5em;
+      top: 16px;
+      right: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.4em;
       cursor: pointer;
-      opacity: 0.7;
-      transition: opacity 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 10;
     }
+    
     .modal-close:hover {
-      opacity: 1;
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #fff;
+      transform: rotate(90deg) scale(1.1);
+    }
+    
+    .modal-close:active {
+      transform: rotate(90deg) scale(0.95);
     }
     .nature-volume {
       width: 100%;
@@ -364,6 +600,97 @@
       display: none;
     }
     
+    /* Enhanced Paper Cards Styling */
+    .research-papers {
+      margin-top: 20px;
+    }
+    
+    .paper-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 12px 0;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .paper-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(65, 105, 225, 0.8), rgba(147, 112, 219, 0.8));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+    
+    .paper-card:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .paper-card:hover {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2), 0 0 20px rgba(65, 105, 225, 0.1);
+    }
+    
+    .paper-card:active {
+      transform: translateY(-2px) scale(1.01);
+    }
+    
+    .paper-title {
+      font-size: 1.2em;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.95);
+      margin-bottom: 12px;
+      line-height: 1.4;
+      letter-spacing: 0.3px;
+    }
+    
+    .paper-abstract {
+      font-size: 0.95em;
+      color: rgba(255, 255, 255, 0.75);
+      line-height: 1.6;
+      margin-bottom: 16px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .paper-meta {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .paper-date, .paper-tag {
+      font-size: 0.85em;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+    
+    .paper-date {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .paper-tag {
+      background: linear-gradient(45deg, rgba(65, 105, 225, 0.3), rgba(147, 112, 219, 0.3));
+      color: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
     /* Paper Management Button Enhancement */
     .paper-management-btn {
       margin-bottom: 20px !important;
@@ -476,195 +803,82 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
     
-    /* --- Revised Research Chat Modal and Sidebar Layout --- */
-    /* This modal now opens out from the sidebar (adjacent to the meditation controls) */
-    .research-chat-modal {
-      display: none;  /* initially hidden */
-      position: fixed;
-      top: 20px;               /* align with the top of the sidebar */
-      left: 420px;             /* sidebar (20px margin + 400px width) */
-      width: calc(100% - 440px); /* leave 20px margin on right */
-      height: calc(100% - 40px);
-      background: linear-gradient(135deg, rgba(13, 13, 15, 0.97), rgba(18, 18, 22, 0.98));
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
+    /* Paper List in Management Modal */
+    .existing-papers {
+      margin-bottom: 30px;
       padding: 20px;
-      z-index: 1000;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    .research-chat-modal.active {
-      display: flex;
-      transform: translateX(0);
-      opacity: 1;
-    }
-    /* Modal header improvements for the chat modal */
-    .chat-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 20px 30px;
-      margin-bottom: 10px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-    }
-    .chat-header h3 {
-      font-size: 1.8em;
-      margin: 0;
-      letter-spacing: 0.5px;
-    }
-    .modal-close {
-      background: none;
-      border: none;
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 1.8em;
-      cursor: pointer;
-      padding: 5px 10px;
-    }
-    /* Chat messages container */
-    .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px 30px;
-      margin: 20px 0;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: 8px;
-    }
-    /* Assistant (welcome) message adjustments */
-    .message.assistant-message {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 12px 15px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      font-size: 1em;
-    }
-    /* Parameter controls: display side by side */
-    .parameter-controls {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      gap: 20px;
-      padding: 10px 20px;
-      margin: 10px 20px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 8px;
-    }
-    .parameter-group {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-    /* Chat input area: extra padding and height */
-    .chat-input-container {
-      padding: 15px 20px;
-      margin: 10px 20px;
       background: rgba(255, 255, 255, 0.03);
-      border-radius: 8px;
-    }
-    .chat-input {
-      width: 100%;
-      min-height: 100px;
-      max-height: 150px;
-      padding: 15px;
-      margin-top: 10px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      color: white;
-      font-size: 1em;
-      line-height: 1.5;
-      resize: vertical;
-    }
-    .chat-submit {
-      margin-top: 15px;
-      padding: 15px;
-      font-size: 1.1em;
       border-radius: 12px;
-      cursor: pointer;
-      background: linear-gradient(135deg, rgba(65, 105, 225, 0.8), rgba(147, 112, 219, 0.8));
-      border: none;
-      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    /* --- End Revised Sidebar / Modal Layout --- */
     
-    /* Chat Message Styling */
-    .message {
-      padding: 15px 20px;
-      margin: 10px 0;
-      border-radius: 12px;
-      max-width: 85%;
-      animation: messageAppear 0.3s ease-out;
-    }
-
-    @keyframes messageAppear {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .user-message {
-      background: linear-gradient(135deg, rgba(65, 105, 225, 0.15), rgba(147, 112, 219, 0.15));
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      margin-left: auto;
+    .existing-papers h4 {
       color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 15px;
+      font-size: 1.2em;
     }
-
-    .assistant-message {
+    
+    .paper-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      margin: 8px 0;
       background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.1);
-      margin-right: auto;
+    }
+    
+    .paper-item-info {
+      flex: 1;
+    }
+    
+    .paper-item-title {
       color: rgba(255, 255, 255, 0.9);
-    }
-
-    .chat-input {
-      width: 100%;
-      min-height: 60px;
-      padding: 15px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      color: white;
       font-size: 1em;
-      line-height: 1.5;
-      resize: vertical;
-      margin-bottom: 10px;
+      margin-bottom: 4px;
     }
-
-    .chat-submit {
-      width: 100%;
-      padding: 12px 20px;
-      background: linear-gradient(135deg, rgba(65, 105, 225, 0.8), rgba(147, 112, 219, 0.8));
+    
+    .paper-item-meta {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.85em;
+    }
+    
+    .paper-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .action-btn {
+      padding: 6px 12px;
       border: none;
-      border-radius: 12px;
-      color: white;
-      font-size: 1.1em;
+      border-radius: 6px;
       cursor: pointer;
+      font-size: 0.9em;
       transition: all 0.3s ease;
     }
-
-    .chat-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    
+    .edit-btn {
+      background: rgba(65, 105, 225, 0.6);
+      color: white;
     }
-
-    .chat-submit:active {
-      transform: translateY(1px);
+    
+    .edit-btn:hover {
+      background: rgba(65, 105, 225, 0.8);
+      transform: translateY(-1px);
     }
+    
+    .delete-btn {
+      background: rgba(220, 53, 69, 0.6);
+      color: white;
+    }
+    
+    .delete-btn:hover {
+      background: rgba(220, 53, 69, 0.8);
+      transform: translateY(-1px);
+    }
+    
+
 
     /* Password Modal Styling */
     .password-modal {
@@ -740,13 +954,6 @@
         max-width: 100%;
         border-radius: 0 0 20px 20px;
       }
-      .research-chat-modal {
-        left: 0;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        border-radius: 0;
-      }
     }
   </style>
 </head>
@@ -781,6 +988,14 @@
           <div class="paper-card" onclick="showPaper('ai-and-deflation')">
             <h4 class="paper-title">The Exponential Impact of AI on COGS Reduction</h4>
             <p class="paper-abstract">This paper investigates the transformative potential of artificial intelligence (AI) on the cost structures across multiple economic sectors, with a specific focus on a broad definition of cost of goods sold (COGS).</p>
+            <div class="paper-meta">
+              <span class="paper-date">2024</span>
+              <span class="paper-tag">Economics</span>
+            </div>
+          </div>
+          <div class="paper-card" onclick="showPaper('eq-and-covid-19')">
+            <h4 class="paper-title">Equilibrium and COVID-19</h4>
+            <p class="paper-abstract">An analysis of economic equilibrium dynamics during the COVID-19 pandemic and its implications for future economic modeling.</p>
             <div class="paper-meta">
               <span class="paper-date">2024</span>
               <span class="paper-tag">Economics</span>
@@ -913,34 +1128,66 @@ The knower and the known combine
       <button class="modal-close" onclick="closePaperManagement()">×</button>
     </div>
     <div class="modal-content">
-      <form id="addPaperForm" onsubmit="addNewPaper(event)">
-        <div class="form-group">
-          <label for="paperTitle">Paper Title</label>
-          <input 
-            type="text" 
-            id="paperTitle" 
-            placeholder="Enter paper title" 
-            required
-          />
+      <!-- Existing Papers Section -->
+      <div class="existing-papers">
+        <h4>Existing Papers</h4>
+        <div id="papersList">
+          <div class="paper-item">
+            <div class="paper-item-info">
+              <div class="paper-item-title">The Exponential Impact of AI on COGS Reduction</div>
+              <div class="paper-item-meta">Economics • 2024</div>
+            </div>
+            <div class="paper-actions">
+              <button class="action-btn edit-btn" onclick="editPaper('ai-and-deflation')">Edit</button>
+              <button class="action-btn delete-btn" onclick="deletePaper('ai-and-deflation')">Delete</button>
+            </div>
+          </div>
+          <div class="paper-item">
+            <div class="paper-item-info">
+              <div class="paper-item-title">Equilibrium and COVID-19</div>
+              <div class="paper-item-meta">Economics • 2024</div>
+            </div>
+            <div class="paper-actions">
+              <button class="action-btn edit-btn" onclick="editPaper('eq-and-covid-19')">Edit</button>
+              <button class="action-btn delete-btn" onclick="deletePaper('eq-and-covid-19')">Delete</button>
+            </div>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="paperContent">Paper Content</label>
-          <textarea 
-            id="paperContent" 
-            placeholder="Enter paper content (markdown format supported)" 
-            rows="12"
-            required
-          ></textarea>
-        </div>
-        <button type="submit" class="submit-btn">Add Paper</button>
-      </form>
+      </div>
+      
+      <!-- Add/Edit Paper Form -->
+      <div class="form-section">
+        <h4 id="formTitle">Add New Paper</h4>
+        <form id="addPaperForm" onsubmit="addNewPaper(event)">
+          <div class="form-group">
+            <label for="paperTitle">Paper Title</label>
+            <input 
+              type="text" 
+              id="paperTitle" 
+              placeholder="Enter paper title" 
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="paperContent">Paper Content</label>
+            <textarea 
+              id="paperContent" 
+              placeholder="Enter paper content (markdown format supported)" 
+              rows="12"
+              required
+            ></textarea>
+          </div>
+          <button type="submit" class="submit-btn" id="submitBtn">Add Paper</button>
+          <button type="button" class="submit-btn" onclick="cancelEdit()" id="cancelBtn" style="display: none; background: rgba(108, 117, 125, 0.8); margin-top: 10px;">Cancel</button>
+        </form>
+      </div>
     </div>
   </div>
 
   <!-- Paper Modal -->
   <div class="paper-modal" id="paperModal">
     <button class="modal-close" onclick="closePaper()">×</button>
-    <div class="modal-content" id="paperContent">
+    <div class="modal-content" id="paperReadingContent">
       <!-- Paper content will be loaded here -->
     </div>
   </div>
@@ -2387,32 +2634,73 @@ The knower and the known combine
 
     // Paper handling functions
     async function showPaper(paperName, updateUrl = true) {
+      console.log('🔍 showPaper called with:', paperName);
+      
       const modal = document.getElementById('paperModal');
-      const content = document.getElementById('paperContent');
+      const content = document.getElementById('paperReadingContent');
+      
+      console.log('📄 Modal element:', modal);
+      console.log('📝 Content element:', content);
+      
       try {
-        const response = await fetch(paperName + '.txt');
+        console.log('🌐 Fetching paper from:', `papers/${paperName}.txt`);
+        const response = await fetch(`papers/${paperName}.txt`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const text = await response.text();
-        const html = text
+        console.log('📖 Raw text length:', text.length);
+        console.log('📖 First 200 chars:', text.substring(0, 200));
+        
+        // Simplified content display for debugging
+        let html = text
+          .replace(/\n/g, '<br>')
           .replace(/^# (.*$)/gm, '<h1>$1</h1>')
           .replace(/^## (.*$)/gm, '<h2>$1</h2>')
-          .replace(/^### (.*$)/gm, '<h3>$1</h3>')
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*(.*?)\*/g, '<em>$1</em>')
-          .replace(/\n\n/g, '</p><p>');
-        content.innerHTML = '<p>' + html + '</p>';
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        console.log('🔧 Processed HTML length:', html.length);
+        console.log('🔧 First 200 chars of HTML:', html.substring(0, 200));
+        
+        content.innerHTML = html;
+        console.log('✅ Content set in modal');
+        
+        // Force the modal to be visible
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
         modal.classList.add('active');
+        
+        console.log('👁️ Modal should now be visible');
+        console.log('📏 Modal computed style:', window.getComputedStyle(modal).display);
+        console.log('🎭 Modal opacity:', window.getComputedStyle(modal).opacity);
+        
         if (updateUrl) {
           window.location.hash = `paper=${paperName}`;
         }
         document.body.style.overflow = 'hidden';
+        
       } catch (error) {
-        console.error('Error loading paper:', error);
+        console.error('❌ Error loading paper:', error);
+        content.innerHTML = `<h1>Error Loading Paper</h1><p>Could not load ${paperName}: ${error.message}</p><p>Please check the console for more details.</p>`;
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
+        modal.classList.add('active');
       }
     }
 
     function closePaper() {
       const modal = document.getElementById('paperModal');
       modal.classList.remove('active');
+      
+      // Hide the modal after the transition completes
+      setTimeout(() => {
+        if (!modal.classList.contains('active')) {
+          modal.style.display = 'none';
+        }
+      }, 400);
+      
       document.body.style.overflow = '';
       history.pushState("", document.title, window.location.pathname + window.location.search);
     }
@@ -2501,6 +2789,8 @@ The knower and the known combine
       document.body.style.overflow = '';
     }
 
+    let editingPaper = null;
+
     async function addNewPaper(event) {
       event.preventDefault();
       const title = document.getElementById('paperTitle').value.trim();
@@ -2511,8 +2801,11 @@ The knower and the known combine
       }
       
       try {
-        const response = await fetch('/api/papers', {
-          method: 'POST',
+        const method = editingPaper ? 'PUT' : 'POST';
+        const url = editingPaper ? `/api/papers/${editingPaper}` : '/api/papers';
+        
+        const response = await fetch(url, {
+          method: method,
           headers: {
             'Content-Type': 'application/json'
           },
@@ -2529,21 +2822,94 @@ The knower and the known combine
         
         const result = await response.json();
         
-        alert(`Paper "${title}" was saved successfully!`);
+        const action = editingPaper ? 'updated' : 'saved';
+        alert(`Paper "${title}" was ${action} successfully!`);
         
-        // Clear the form
+        // Clear the form and reset state
         document.getElementById('paperTitle').value = '';
         document.getElementById('paperContent').value = '';
+        cancelEdit();
         
         // Close the modal
         closePaperManagement();
         
-        // Optional: reload to show the new paper
+        // Optional: reload to show the updated papers
         location.reload();
         
       } catch (error) {
-        alert('An error occurred while saving the paper. Please try again.');
+        const action = editingPaper ? 'updating' : 'saving';
+        alert(`An error occurred while ${action} the paper. Please try again.`);
         console.error('Error saving paper:', error);
+      }
+    }
+
+    async function editPaper(paperName) {
+      try {
+        const response = await fetch(`papers/${paperName}.txt`);
+        const text = await response.text();
+        
+        // Find the paper title from the existing paper cards
+        let title = '';
+        const paperCards = document.querySelectorAll('.paper-card');
+        paperCards.forEach(card => {
+          if (card.getAttribute('onclick').includes(paperName)) {
+            title = card.querySelector('.paper-title').textContent;
+          }
+        });
+        
+        // Populate the form
+        document.getElementById('paperTitle').value = title;
+        document.getElementById('paperContent').value = text;
+        
+        // Switch to edit mode
+        editingPaper = paperName;
+        document.getElementById('formTitle').textContent = 'Edit Paper';
+        document.getElementById('submitBtn').textContent = 'Update Paper';
+        document.getElementById('cancelBtn').style.display = 'inline-block';
+        
+        // Scroll to form
+        document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+        
+      } catch (error) {
+        alert('Error loading paper for editing');
+        console.error('Error loading paper:', error);
+      }
+    }
+
+    function cancelEdit() {
+      editingPaper = null;
+      document.getElementById('formTitle').textContent = 'Add New Paper';
+      document.getElementById('submitBtn').textContent = 'Add Paper';
+      document.getElementById('cancelBtn').style.display = 'none';
+      document.getElementById('paperTitle').value = '';
+      document.getElementById('paperContent').value = '';
+    }
+
+    async function deletePaper(paperName) {
+      const confirmed = confirm('Are you sure you want to delete this paper? This action cannot be undone.');
+      if (!confirmed) return;
+      
+      try {
+        const response = await fetch(`/api/papers/${paperName}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ 
+            password: 'becomeatman'
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Error deleting paper');
+        }
+        
+        alert('Paper deleted successfully!');
+        location.reload();
+        
+      } catch (error) {
+        alert('An error occurred while deleting the paper. Please try again.');
+        console.error('Error deleting paper:', error);
       }
     }
 
