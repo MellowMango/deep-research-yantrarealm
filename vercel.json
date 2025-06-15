@@ -11,6 +11,14 @@
     {
       "src": "*.html",
       "use": "@vercel/static"
+    },
+    {
+      "src": "*.txt",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "papers/*.txt",
+      "use": "@vercel/static"
     }
   ],
   "routes": [

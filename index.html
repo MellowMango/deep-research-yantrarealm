@@ -1001,6 +1001,14 @@
               <span class="paper-tag">Economics</span>
             </div>
           </div>
+          <div class="paper-card" onclick="showPaper('letters-of-marque-in-cyberspace')">
+            <h4 class="paper-title">Cyber Letters of Marque in Modern Global Security</h4>
+            <p class="paper-abstract">A viability analysis of cyber "letters of marque" - state-sanctioned private cyber operations against threats like ransomware and nation-state proxies.</p>
+            <div class="paper-meta">
+              <span class="paper-date">2024</span>
+              <span class="paper-tag">Cybersecurity</span>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -1150,6 +1158,16 @@ The knower and the known combine
             <div class="paper-actions">
               <button class="action-btn edit-btn" onclick="editPaper('eq-and-covid-19')">Edit</button>
               <button class="action-btn delete-btn" onclick="deletePaper('eq-and-covid-19')">Delete</button>
+            </div>
+          </div>
+          <div class="paper-item">
+            <div class="paper-item-info">
+              <div class="paper-item-title">Cyber Letters of Marque in Modern Global Security</div>
+              <div class="paper-item-meta">Cybersecurity • 2024</div>
+            </div>
+            <div class="paper-actions">
+              <button class="action-btn edit-btn" onclick="editPaper('letters-of-marque-in-cyberspace')">Edit</button>
+              <button class="action-btn delete-btn" onclick="deletePaper('letters-of-marque-in-cyberspace')">Delete</button>
             </div>
           </div>
         </div>
@@ -2643,23 +2661,52 @@ The knower and the known combine
       console.log('📝 Content element:', content);
       
       try {
-        console.log('🌐 Fetching paper from:', `papers/${paperName}.txt`);
-        const response = await fetch(`papers/${paperName}.txt`);
+        // Try papers folder first, fallback to root
+        let response;
+        let fetchUrl = `papers/${paperName}.txt`;
+        
+        console.log('🌐 Fetching paper from:', fetchUrl);
+        response = await fetch(fetchUrl);
         
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          console.log('📁 Papers folder failed, trying root directory...');
+          fetchUrl = `${paperName}.txt`;
+          response = await fetch(fetchUrl);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
         }
         
         const text = await response.text();
-        console.log('📖 Raw text length:', text.length);
+        console.log('✅ Paper loaded successfully from:', fetchUrl);
+        console.log('📄 Content length:', text.length);
         console.log('📖 First 200 chars:', text.substring(0, 200));
         
-        // Simplified content display for debugging
+        // Enhanced markdown parsing
         let html = text
-          .replace(/\n/g, '<br>')
           .replace(/^# (.*$)/gm, '<h1>$1</h1>')
           .replace(/^## (.*$)/gm, '<h2>$1</h2>')
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+          .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(/^---+$/gm, '<hr>')
+          .replace(/^\* (.*$)/gm, '<li>$1</li>')
+          .replace(/^(\d+\.\s.*$)/gm, '<li>$1</li>')
+          .replace(/\n\n/g, '</p><p>')
+          .replace(/(<li>.*?<\/li>(?:\n<li>.*?<\/li>)*)/gs, '<ul>$1</ul>')
+          .replace(/<ul><li>(\d+\..*?)<\/li>/g, '<ol><li>$1</li>')
+          .replace(/<\/li><\/ul>\s*<ul><li>(\d+\..*?)/g, '</li><li>$1');
+        
+        // Clean up and wrap in paragraphs
+        if (!html.startsWith('<h1>') && !html.startsWith('<p>')) {
+          html = '<p>' + html + '</p>';
+        }
+        
+        // Fix multiple paragraph tags and line breaks
+        html = html.replace(/<\/p><p>/g, '</p>\n<p>')
+                   .replace(/(<\/h[1-6]>)\s*(<p>)/g, '$1\n$2')
+                   .replace(/(<\/hr>)\s*(<p>)/g, '$1\n$2');
         
         console.log('🔧 Processed HTML length:', html.length);
         console.log('🔧 First 200 chars of HTML:', html.substring(0, 200));
